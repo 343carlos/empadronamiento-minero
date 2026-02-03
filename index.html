@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Empadronamiento Minero</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+<style>
+/* ===================== RESET & VARIABLES ===================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep:      #0a0e1a;
+  --bg-card:      #111827;
+  --bg-card2:     #1a2236;
+  --bg-input:     #0f1420;
+  --accent:       #00d4aa;
+  --accent-dim:   rgba(0,212,170,0.12);
+  --accent-glow:  rgba(0,212,170,0.35);
+  --gold:         #e8a830;
+  --gold-dim:     rgba(232,168,48,0.15);
+  --danger:       #ff4e6a;
+  --danger-dim:   rgba(255,78,106,0.15);
+  --warn:         #f5a623;
+  --warn-dim:     rgba(245,166,35,0.15);
+  --text-primary: #e8edf5;
+  --text-secondary:#8b95a8;
+  --text-muted:  #555e72;
+  --border:       rgba(139,149,168,0.12);
+  --radius:       12px;
+  --radius-sm:    8px;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ===================== BACKGROUND GRID ===================== */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+/* ===================== SCREENS ===================== */
+.screen { display: none; min-height: 100vh; position: relative; z-index: 1; }
+.screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+/* ===================== HEADER ===================== */
+.top-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(10,14,26,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.top-bar .logo-text {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 3px;
+  color: var(--accent);
+  text-shadow: 0 0 20px var(--accent-glow);
+}
+.top-bar .logo-text span { color: var(--text-secondary); font-size:0.85rem; letter-spacing:2px; display:block; margin-top:-4px; }
+.top-bar .nav-right { display: flex; align-items: center; gap: 18px; }
+.top-bar .nav-btn {
+  background: none; border: 1px solid var(--border); color: var(--text-secondary);
+  padding: 7px 18px; border-radius: var(--radius-sm); cursor: pointer;
+  font-family: inherit; font-size: 0.82rem; letter-spacing: 1px; text-transform: uppercase;
+  transition: all .25s;
+}
+.top-bar .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+.top-bar .nav-btn.active-tab { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+/* ===================== ROLE SELECTION (HOME) ===================== */
+#screen-home { background: var(--bg-deep); }
+.home-hero { text-align: center; max-width: 700px; padding: 0 24px; }
+.home-hero h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.6rem, 6vw, 4.2rem);
+  letter-spacing: 5px;
+  color: var(--accent);
+  text-shadow: 0 0 40px var(--accent-glow);
+  margin-bottom: 8px;
+}
+.home-hero .subtitle { color: var(--text-secondary); font-size: 1rem; letter-spacing: 2px; margin-bottom: 52px; }
+.role-cards { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+.role-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 36px 32px;
+  width: 280px; text-align: center; cursor: pointer;
+  transition: all .3s cubic-bezier(.4,0,.2,1);
+  position: relative; overflow: hidden;
+}
+.role-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, transparent 60%, var(--accent-dim));
+  opacity: 0; transition: opacity .3s;
+}
+.role-card:hover { border-color: var(--accent); transform: translateY(-6px); box-shadow: 0 12px 40px var(--accent-glow); }
+.role-card:hover::before { opacity: 1; }
+.role-card .icon { font-size: 2.4rem; margin-bottom: 16px; position: relative; z-index:1; }
+.role-card h3 { font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; position: relative; z-index:1; }
+.role-card p { color: var(--text-secondary); font-size: 0.82rem; line-height: 1.5; position: relative; z-index:1; }
+
+/* ===================== OPERATOR PANEL ===================== */
+#screen-operator { padding-top: 80px; align-items: stretch; justify-content: flex-start; }
+.panel-wrap { width: 100%; max-width: 860px; padding: 40px 24px 60px; }
+.panel-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 3px; color: var(--accent); margin-bottom: 6px; }
+.panel-subtitle { color: var(--text-secondary); font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 28px; }
+
+.upload-zone {
+  border: 2px dashed rgba(0,212,170,0.3);
+  border-radius: var(--radius);
+  padding: 48px 24px;
+  text-align: center; cursor: pointer;
+  transition: all .3s; background: var(--accent-dim);
+  margin-bottom: 32px; position: relative;
+}
+.upload-zone:hover, .upload-zone.drag-over { border-color: var(--accent); background: rgba(0,212,170,0.18); }
+.upload-zone .uz-icon { font-size: 2.8rem; margin-bottom: 12px; }
+.upload-zone p { color: var(--text-secondary); font-size: 0.85rem; }
+.upload-zone p strong { color: var(--accent); }
+.upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* Table */
+.data-table-wrap { background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+.data-table-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 22px; border-bottom: 1px solid var(--border);
+}
+.data-table-header h4 { font-size: 0.82rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-secondary); }
+.data-table-header .row-count { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; color: var(--accent); }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  text-align: left; padding: 12px 18px; font-size: 0.7rem; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border);
+  font-weight: 600;
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background .2s; }
+tbody tr:hover { background: rgba(0,212,170,0.04); }
+tbody td { padding: 13px 18px; font-size: 0.82rem; color: var(--text-secondary); }
+tbody td:first-child { color: var(--text-primary); font-weight: 600; }
+
+.badge {
+  display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 0.68rem;
+  letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600;
+}
+.badge-vigente { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-glow); }
+.badge-vencido { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(255,78,106,0.3); }
+.badge-observado { background: var(--warn-dim); color: var(--warn); border: 1px solid rgba(245,166,35,0.3); }
+
+.empty-msg { text-align: center; padding: 40px; color: var(--text-muted); font-size: 0.82rem; letter-spacing: 1px; }
+
+/* Botón guardar */
+.btn-save {
+  margin-top: 22px; width: 100%; padding: 13px; border: none; border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--accent), #00b892);
+  color: #0a0e1a; font-family: inherit; font-size: 0.82rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+  transition: all .25s; display: none;
+}
+.btn-save:hover { box-shadow: 0 6px 24px var(--accent-glow); transform: translateY(-1px); }
+.btn-save.visible { display: block; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(120px);
+  background: var(--bg-card); border: 1px solid var(--accent); color: var(--accent);
+  padding: 14px 28px; border-radius: var(--radius-sm); font-size: 0.8rem; letter-spacing: 1px;
+  z-index: 999; transition: transform .35s cubic-bezier(.4,0,.2,1); white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ===================== LOGIN SCREEN ===================== */
+#screen-login { background: var(--bg-deep); }
+.login-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 52px 44px 44px;
+  width: 100%; max-width: 400px;
+  position: relative; overflow: hidden;
+}
+.login-box::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+.login-box .lock-icon { text-align: center; font-size: 2rem; margin-bottom: 8px; }
+.login-box h2 { text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 3px; color: var(--accent); margin-bottom: 4px; }
+.login-box .login-sub { text-align: center; color: var(--text-muted); font-size: 0.75rem; letter-spacing: 1px; margin-bottom: 32px; }
+.input-group { margin-bottom: 18px; }
+.input-group label { display: block; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 7px; }
+.input-group input {
+  width: 100%; padding: 12px 16px; background: var(--bg-input); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text-primary); font-family: inherit; font-size: 0.85rem;
+  transition: border-color .25s; outline: none;
+}
+.input-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.btn-login {
+  width: 100%; padding: 13px; border: none; border-radius: var(--radius-sm); margin-top: 8px;
+  background: linear-gradient(135deg, var(--accent), #00b892);
+  color: #0a0e1a; font-family: inherit; font-size: 0.82rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all .25s;
+}
+.btn-login:hover { box-shadow: 0 6px 24px var(--accent-glow); }
+.login-error { color: var(--danger); font-size: 0.72rem; text-align: center; margin-top: 14px; min-height: 16px; letter-spacing: 0.5px; }
+
+/* ===================== CONSULTA SCREEN ===================== */
+#screen-consulta { padding-top: 80px; align-items: stretch; justify-content: flex-start; }
+.consulta-wrap { width: 100%; max-width: 720px; padding: 40px 24px 60px; }
+
+.search-box {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 28px; margin-bottom: 28px;
+}
+.search-box .search-label { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+.search-row { display: flex; gap: 10px; }
+.search-row select, .search-row input {
+  background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text-primary); font-family: inherit; font-size: 0.84rem; padding: 12px 16px;
+  outline: none; transition: border-color .25s;
+}
+.search-row select { width: 160px; flex-shrink: 0; cursor: pointer; }
+.search-row select option { background: var(--bg-card); }
+.search-row input { flex: 1; }
+.search-row select:focus, .search-row input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.btn-search {
+  padding: 12px 28px; border: none; border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--accent), #00b892);
+  color: #0a0e1a; font-family: inherit; font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all .25s; flex-shrink: 0;
+}
+.btn-search:hover { box-shadow: 0 6px 24px var(--accent-glow); }
+
+/* Result card */
+.result-area { min-height: 140px; }
+.result-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 28px; display: none;
+}
+.result-card.show { display: block; animation: fadeIn .3s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+.result-card .rc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.result-card .rc-title { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); letter-spacing: 0.5px; }
+.result-card .rc-sub { color: var(--text-muted); font-size: 0.72rem; letter-spacing: 1px; margin-top: 3px; }
+.result-card .rc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.result-card .rc-field { background: var(--bg-input); border-radius: var(--radius-sm); padding: 14px 16px; }
+.result-card .rc-field label { display: block; font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px; }
+.result-card .rc-field .val { font-size: 0.85rem; color: var(--text-primary); font-weight: 600; }
+.result-card .rc-field.full { grid-column: 1 / -1; }
+
+/* Not found */
+.not-found {
+  text-align: center; padding: 40px 20px; display: none;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+}
+.not-found.show { display: block; animation: fadeIn .3s ease; }
+.not-found .nf-icon { font-size: 2.6rem; margin-bottom: 12px; }
+.not-found h3 { color: var(--danger); font-size: 0.95rem; letter-spacing: 1px; margin-bottom: 6px; }
+.not-found p { color: var(--text-muted); font-size: 0.75rem; }
+
+/* Stats bar */
+.stats-bar { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+.stat-pill {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 10px 18px; display: flex; align-items: center; gap: 10px; flex: 1; min-width: 130px;
+}
+.stat-pill .sp-dot { width: 8px; height: 8px; border-radius: 50%; }
+.stat-pill .sp-dot.green { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+.stat-pill .sp-dot.red { background: var(--danger); box-shadow: 0 0 8px rgba(255,78,106,0.4); }
+.stat-pill .sp-dot.yellow { background: var(--warn); box-shadow: 0 0 8px rgba(245,166,35,0.4); }
+.stat-pill .sp-num { font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; color: var(--text-primary); }
+.stat-pill .sp-label { font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
+
+/* Logout btn */
+.btn-logout {
+  background: none; border: 1px solid var(--border); color: var(--text-secondary);
+  padding: 7px 16px; border-radius: var(--radius-sm); cursor: pointer;
+  font-family: inherit; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; transition: all .25s;
+}
+.btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+/* Spinner */
+.spinner { display:none; text-align:center; padding: 40px; }
+.spinner.show { display:block; }
+.spinner::after {
+  content:''; display:inline-block; width:28px; height:28px; border:3px solid var(--border);
+  border-top-color: var(--accent); border-radius:50%; animation: spin .6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Responsive */
+@media (max-width: 540px) {
+  .role-cards { flex-direction: column; align-items: center; }
+  .role-card { width: 100%; max-width: 320px; }
+  .search-row { flex-direction: column; }
+  .result-card .rc-grid { grid-template-columns: 1fr; }
+  .login-box { padding: 36px 24px 30px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ TOAST ============ -->
+<div class="toast" id="toast"></div>
+
+<!-- ============ SCREEN: HOME ============ -->
+<div class="screen active" id="screen-home">
+  <div class="home-hero">
+    <h1>EMPADRONAMIENTO<br>MINERO</h1>
+    <p class="subtitle">SISTEMA DE REGISTRO Y VERIFICACIÓN DE OPERADORES</p>
+    <div class="role-cards">
+      <div class="role-card" onclick="goTo('operator-login')">
+        <div class="icon">⛏️</div>
+        <h3>ADMINISTRADOR</h3>
+        <p>Los datos de empadronamiento minero se actilizan cada mes</p>
+      </div>
+      <div class="role-card" onclick="goTo('login')">
+        <div class="icon">🔍</div>
+        <h3>Verificador</h3>
+        <p>Acceso restringido para consultar el estado de operadores mineros registrados en el sistema.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREEN: OPERATOR LOGIN ============ -->
+<div class="screen" id="screen-operator-login">
+  <nav class="top-bar">
+    <div class="logo-text">EMPADRONAMIENTO MINERO <span>ACCESO DE OPERADOR</span></div>
+    <div class="nav-right">
+      <button class="nav-btn" onclick="goTo('home')">← Inicio</button>
+    </div>
+  </nav>
+  <div class="login-box">
+    <div class="lock-icon">⛏️</div>
+    <h2>ADMINISTRADOR</h2>
+    <p class="login-sub">INGRESE SUS CREDENCIALES PARA CARGAR DATOS</p>
+    <div class="input-group">
+      <label>Usuario</label>
+      <input type="text" id="operatorUser" placeholder="usuario" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('operatorPass').focus();}" />
+    </div>
+    <div class="input-group">
+      <label>Contraseña</label>
+      <input type="password" id="operatorPass" placeholder="••••••••" onkeydown="if(event.key==='Enter'){event.preventDefault();doOperatorLogin();}" />
+    </div>
+    <button class="btn-login" onclick="doOperatorLogin()">Ingresar</button>
+    <div class="login-error" id="operatorError"></div>
+  </div>
+</div>
+
+<!-- ============ SCREEN: OPERATOR ============ -->
+<div class="screen" id="screen-operator">
+  <nav class="top-bar">
+    <div class="logo-text">EMPADRONAMIENTO MINERO <span>PANEL DE ADMINISTRADOR</span></div>
+    <div class="nav-right">
+      <button class="btn-logout" onclick="doOperatorLogout()">Cerrar sesión</button>
+    </div>
+  </nav>
+  <div class="panel-wrap">
+    <div class="panel-title">📂 CARGA DE DATOS</div>
+    <div class="panel-subtitle">Sube un archivo Excel (.xlsx / .xls) con los datos de operadores mineros</div>
+
+    <div class="upload-zone" id="uploadZone">
+      <div class="uz-icon">📤</div>
+      <p><strong>Arrastrar y soltar</strong> un archivo Excel aquí</p>
+      <p style="margin-top:6px; font-size:0.72rem;">o haz clic para seleccionar · Formatos: .xlsx, .xls</p>
+      <input type="file" id="fileInput" accept=".xlsx,.xls" />
+    </div>
+
+    <div class="data-table-wrap">
+      <div class="data-table-header">
+        <h4>📋 Datos cargados</h4>
+        <span class="row-count" id="rowCount">0 registros</span>
+      </div>
+      <div id="tableBody">
+        <div class="empty-msg">No hay datos cargados. Sube un archivo Excel para comenzar.</div>
+      </div>
+    </div>
+
+    <button class="btn-save" id="btnSave" onclick="saveData()">💾 Guardar datos en el sistema</button>
+  </div>
+</div>
+
+<!-- ============ SCREEN: LOGIN ============ -->
+<div class="screen" id="screen-login">
+  <nav class="top-bar">
+    <div class="logo-text">EMPADRONAMIENTO MINERO <span>ACCESO RESTRINGIDO</span></div>
+    <div class="nav-right">
+      <button class="nav-btn" onclick="goTo('home')">← Inicio</button>
+    </div>
+  </nav>
+  <div class="login-box">
+    <div class="lock-icon">🔐</div>
+    <h2>VERIFICADOR</h2>
+    <p class="login-sub">INGRESE SUS CREDENCIALES PARA CONTINUAR</p>
+    <div class="input-group">
+      <label>Usuario</label>
+      <input type="text" id="loginUser" placeholder="usuario" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('loginPass').focus();}" />
+    </div>
+    <div class="input-group">
+      <label>Contraseña</label>
+      <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter'){event.preventDefault();doLogin();}" />
+    </div>
+    <button class="btn-login" onclick="doLogin()">Ingresar</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ============ SCREEN: CONSULTA ============ -->
+<div class="screen" id="screen-consulta">
+  <nav class="top-bar">
+    <div class="logo-text">EMPADRONAMIENTO MINERO <span>PANEL DE CONSULTA</span></div>
+    <div class="nav-right">
+      <button class="btn-logout" onclick="doLogout()">Cerrar sesión</button>
+    </div>
+  </nav>
+
+
+    <div class="search-box">
+      <div class="search-label">🔎 Buscar operador minero</div>
+      <div class="search-row">
+        <select id="searchType">
+          <option value="nombre">Nombre / Razón Social</option>
+          <option value="nit">NIT</option>
+          <option value="nim">NIM</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="Ingrese el valor de búsqueda..." onkeydown="if(event.key==='Enter') doSearch()" />
+        <button class="btn-search" onclick="doSearch()">Buscar</button>
+      </div>
+    </div>
+
+    <div class="result-area">
+      <div class="spinner" id="spinner"></div>
+
+      <!-- Resultado encontrado -->
+      <div class="result-card" id="resultCard">
+        <div class="rc-header">
+          <div>
+            <div class="rc-title" id="rcNombre">—</div>
+            <div class="rc-sub">OPERADOR MINERO REGISTRADO</div>
+          </div>
+          <span class="badge" id="rcBadge">—</span>
+        </div>
+        <div class="rc-grid">
+          <div class="rc-field">
+            <label>NIT</label>
+            <div class="val" id="rcNit">—</div>
+          </div>
+          <div class="rc-field">
+            <label>NIM</label>
+            <div class="val" id="rcNim">—</div>
+          </div>
+          <div class="rc-field full">
+            <label>Fecha de Vencimiento del Registro</label>
+            <div class="val" id="rcFecha">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No encontrado -->
+      <div class="not-found" id="notFound">
+        <div class="nf-icon">⚠️</div>
+        <h3>Operador minero no encontrado</h3>
+        <p>El operador minero no se encuentra registrado en el sistema.<br>Verifique los datos proporcionados e intente nuevamente.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SheetJS removed: loaded inline via a self-contained .xlsx parser below -->
+
+<script>
+// ===================== STATE =====================
+let operatorData = [];   // datos cargados desde Excel (pendientes)
+let systemData   = [];   // datos guardados en el sistema
+
+// Credenciales (demo)
+const USERS_VERIFICADOR = { asd: 'asd123', verificador: 'verif2024' };
+const USERS_OPERADOR    = { robert: 'rob123llanos', minero: 'minero2024' };
+
+// ===================== NAVIGATION =====================
+function goTo(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const map = { 
+    home: 'screen-home', 
+    'operator-login': 'screen-operator-login',
+    operator: 'screen-operator', 
+    login: 'screen-login', 
+    consulta: 'screen-consulta' 
+  };
+  document.getElementById(map[screen]).classList.add('active');
+  if (screen === 'consulta') updateStats();
+}
+
+// ===================== TOAST =====================
+function showToast(msg, duration = 2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ===================== XLSX PARSER (sin dependencias externas) =====================
+// Convierte fecha serial de Excel → Date JS
+// Excel cuenta días desde December 30, 1899 (no January 1, 1900)
+// Excel tiene un bug heredado de Lotus 1-2-3: trata 1900 como año bisiesto (no lo es)
+function excelDateToJS(serial) {
+  if (typeof serial !== 'number' || isNaN(serial)) return null;
+  
+  // Excel epoch: December 30, 1899
+  const excelEpoch = new Date(1899, 11, 30); // Meses en JS son 0-indexed (11 = diciembre)
+  
+  // Excel bug del año bisiesto 1900: serial 60 = feb 29, 1900 (que no existe)
+  // Para serial >= 61, restamos 1 día para compensar
+  const offset = serial >= 61 ? serial - 1 : serial;
+  
+  // Convertir días a milisegundos y sumar al epoch
+  const ms = offset * 86400000;
+  return new Date(excelEpoch.getTime() + ms);
+}
+
+// Parser mínimo de .xlsx usando DecompressionStream (Web API nativa, sin librerías)
+async function parseXLSX(arrayBuffer) {
+  // .xlsx es un ZIP. Usamos DecompressionStream para extraer archivos
+  const zip = await unzipBuffer(arrayBuffer);
+
+  // Buscar shared strings (strings compartidas del workbook)
+  let sharedStrings = [];
+  if (zip['xl/sharedStrings.xml']) {
+    sharedStrings = parseSharedStrings(zip['xl/sharedStrings.xml']);
+  }
+
+  // Parsear la primera hoja (sheet1.xml)
+  const sheetKey = Object.keys(zip).find(k => k.match(/xl\/worksheets\/sheet1\.xml/i));
+  if (!sheetKey) throw new Error('No se encontró sheet1.xml en el archivo');
+
+  const rows = parseSheet(zip[sheetKey], sharedStrings);
+  return rows;
+}
+
+// ---- Unzip básico usando DecompressionStream ----
+async function unzipBuffer(buffer) {
+  const view = new DataView(buffer);
+  const files = {};
+  let offset = 0;
+
+  while (offset < buffer.byteLength - 4) {
+    const sig = view.getUint32(offset, true);
+    if (sig !== 0x04034b50) break; // Local file header signature
+
+    const compMethod  = view.getUint16(offset + 8, true);
+    const compSize    = view.getUint32(offset + 18, true);
+    const uncompSize  = view.getUint32(offset + 22, true);
+    const nameLen     = view.getUint16(offset + 26, true);
+    const extraLen    = view.getUint16(offset + 28, true);
+    const nameStart   = offset + 30;
+    const dataStart   = nameStart + nameLen + extraLen;
+
+    const name = new TextDecoder().decode(new Uint8Array(buffer, nameStart, nameLen));
+    const compData = new Uint8Array(buffer, dataStart, compSize);
+
+    let content;
+    if (compMethod === 0) {
+      // Sin compresión
+      content = compData;
+    } else if (compMethod === 8) {
+      // Deflate → usamos DecompressionStream con 'deflate-raw'
+      const ds = new DecompressionStream('deflate-raw');
+      const writer = ds.writable.getWriter();
+      const reader = ds.readable.getReader();
+      writer.write(compData);
+      writer.close();
+      const chunks = [];
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+      }
+      const total = chunks.reduce((a, c) => a + c.length, 0);
+      content = new Uint8Array(total);
+      let pos = 0;
+      for (const ch of chunks) { content.set(ch, pos); pos += ch.length; }
+    } else {
+      content = compData; // fallback
+    }
+
+    // Solo guardamos XMLs que necesitamos
+    if (name.endsWith('.xml') || name.endsWith('.rels')) {
+      files[name] = new TextDecoder().decode(content);
+    }
+
+    offset = dataStart + compSize;
+  }
+  return files;
+}
+
+// ---- Parsear sharedStrings.xml → array de strings ----
+function parseSharedStrings(xml) {
+  const strings = [];
+  // Extraer contenido de cada <si>...</si>
+  const siRegex = /<si>([\s\S]*?)<\/si>/g;
+  let match;
+  while ((match = siRegex.exec(xml)) !== null) {
+    // Dentro puede haber <t>texto</t> o múltiples <r><t>texto</t></r>
+    const inner = match[1];
+    const tRegex = /<t[^>]*>([\s\S]*?)<\/t>/g;
+    let tMatch;
+    let text = '';
+    while ((tMatch = tRegex.exec(inner)) !== null) {
+      text += tMatch[1];
+    }
+    // Decodificar entidades XML
+    text = text.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'");
+    strings.push(text);
+  }
+  return strings;
+}
+
+// ---- Parsear sheet1.xml → array de arrays (rows) ----
+function parseSheet(xml, sharedStrings) {
+  const rows = [];
+  // Extraer cada <row ...>...</row>
+  const rowRegex = /<row[^>]*>([\s\S]*?)<\/row>/g;
+  let rowMatch;
+
+  while ((rowMatch = rowRegex.exec(xml)) !== null) {
+    const rowXML = rowMatch[1];
+    const cells = [];
+    // Extraer cada <c ...>...</c>  (puede ser self-closing <c .../>)
+    const cellRegex = /<c\s([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g;
+    let cellMatch;
+
+    while ((cellMatch = cellRegex.exec(rowXML)) !== null) {
+      const attrs = cellMatch[1];
+      const body  = cellMatch[2] || '';
+
+      // Obtener tipo: t="s" (shared string), t="b" (boolean), sin t = número/fecha
+      const typeM = attrs.match(/t="([^"]+)"/);
+      const type  = typeM ? typeM[1] : 'n';
+
+      // Obtener valor <v>...</v>
+      const valM = body.match(/<v>([\s\S]*?)<\/v>/);
+      const rawVal = valM ? valM[1] : '';
+
+      // Obtener referencia de celda para determinar columna (ej: A1, B3)
+      const refM = attrs.match(/r="([^"]+)"/);
+      const ref  = refM ? refM[1] : '';
+      const col  = ref.replace(/[0-9]/g, '');
+      const colIdx = col ? colLetterToIndex(col) : cells.length;
+
+      let value = '';
+      if (type === 's') {
+        // Shared string
+        value = sharedStrings[parseInt(rawVal)] || '';
+      } else if (type === 'b') {
+        value = rawVal === '1' ? 'TRUE' : 'FALSE';
+      } else if (rawVal !== '') {
+        // Número. Verificar si es fecha buscando el estilo numFmtId
+        // Para simplificar: si el número está en rango típico de fechas Excel (>40000 y <60000) lo tratamos como fecha
+        const num = parseFloat(rawVal);
+        if (!isNaN(num) && num > 40000 && num < 60000) {
+          value = excelDateToJS(num); // retorna Date
+        } else {
+          value = num;
+        }
+      }
+
+      // Rellenar con vacíos si hay saltos de columna
+      while (cells.length < colIdx) cells.push('');
+      cells[colIdx] = value;
+    }
+
+    if (cells.length > 0) rows.push(cells);
+  }
+  return rows;
+}
+
+// Convierte letra de columna Excel (A, B, ... Z, AA, AB...) a índice 0-based
+function colLetterToIndex(col) {
+  let idx = 0;
+  for (let i = 0; i < col.length; i++) {
+    idx = idx * 26 + (col.charCodeAt(i) - 64);
+  }
+  return idx - 1;
+}
+
+// ===================== UPLOAD EXCEL =====================
+const uploadZone = document.getElementById('uploadZone');
+const fileInput  = document.getElementById('fileInput');
+
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag-over'); handleFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', e => { handleFile(e.target.files[0]); fileInput.value = ''; });
+
+async function handleFile(file) {
+  if (!file) return;
+  if (!['.xlsx','.xls'].some(ext => file.name.toLowerCase().endsWith(ext))) {
+    showToast('⚠️  Solo se permiten archivos Excel (.xlsx / .xls)');
+    return;
+  }
+  // .xls antiguo no soportado por este parser, solo .xlsx
+  if (file.name.toLowerCase().endsWith('.xls') && !file.name.toLowerCase().endsWith('.xlsx')) {
+    showToast('⚠️  Solo se soporta formato .xlsx. Por favor guarde su archivo en formato Excel 2007+');
+    return;
+  }
+
+  showToast('⏳  Procesando archivo...');
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const raw = await parseXLSX(arrayBuffer);
+
+    if (raw.length < 2) { showToast('⚠️  El archivo no tiene datos suficientes'); return; }
+
+    // Detectar columnas por encabezado
+    const headers = raw[0].map(h => String(h).toLowerCase().trim());
+    const idx = {
+      nombre: headers.findIndex(h => h.includes('nombre') || h.includes('razón') || h.includes('razon') || h.includes('razon social')),
+      nit:    headers.findIndex(h => h.includes('nit')),
+      nim:    headers.findIndex(h => h.includes('nim')),
+      fecha:  headers.findIndex(h => h.includes('fecha') || h.includes('vencimiento'))
+    };
+
+    // Validar que se encontraron las columnas
+    const missing = [];
+    if (idx.nombre === -1) missing.push('Nombre');
+    if (idx.nit === -1)    missing.push('NIT');
+    if (idx.nim === -1)    missing.push('NIM');
+    if (idx.fecha === -1)  missing.push('Fecha');
+    if (missing.length > 0) {
+      showToast('⚠️  No se encontraron columnas: ' + missing.join(', '));
+      return;
+    }
+
+    operatorData = [];
+    for (let i = 1; i < raw.length; i++) {
+      const row = raw[i];
+      if (!row || row.every(c => c === '' || c == null)) continue;
+
+      let fecha = null;
+      const fechaRaw = row[idx.fecha];
+      if (fechaRaw instanceof Date) fecha = fechaRaw;
+      else if (typeof fechaRaw === 'string' && fechaRaw.trim()) fecha = new Date(fechaRaw);
+
+      operatorData.push({
+        nombre: row[idx.nombre] != null ? String(row[idx.nombre]).trim() : '',
+        nit:    row[idx.nit]    != null ? String(row[idx.nit]).trim()    : '',
+        nim:    row[idx.nim]    != null ? String(row[idx.nim]).trim()    : '',
+        fecha:  fecha
+      });
+    }
+    renderTable();
+    showToast(`✅  ${operatorData.length} registros leídos correctamente`);
+
+  } catch (err) {
+    console.error('Error parsing xlsx:', err);
+    showToast('❌  Error al procesar el archivo. Verifique que sea un .xlsx válido.');
+  }
+}
+
+// ===================== DETECT STATE =====================
+function getState(fecha) {
+  if (!fecha || isNaN(fecha.getTime())) return 'observado';
+  const hoy   = new Date(); hoy.setHours(0,0,0,0);
+  const venc  = new Date(fecha); venc.setHours(0,0,0,0);
+  const diff  = (venc - hoy) / (1000*60*60*24);
+  if (diff < 0)  return 'vencido';
+  if (diff <= 30) return 'observado';   // vence en los próximos 30 días
+  return 'vigente';
+}
+
+function formatDate(d) {
+  if (!d || isNaN(d.getTime())) return 'Sin fecha';
+  return d.toLocaleDateString('es-CO', { day:'2-digit', month:'long', year:'numeric' });
+}
+
+// ===================== RENDER TABLE =====================
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  document.getElementById('rowCount').textContent = operatorData.length + ' registros';
+
+  if (operatorData.length === 0) {
+    tbody.innerHTML = '<div class="empty-msg">No hay datos cargados.</div>';
+    document.getElementById('btnSave').classList.remove('visible');
+    return;
+  }
+
+  let html = '<table><thead><tr><th>Nombre / Razón Social</th><th>NIT</th><th>NIM</th><th>Fecha Vencimiento</th><th>Estado</th></tr></thead><tbody>';
+  operatorData.forEach(op => {
+    const state = getState(op.fecha);
+    html += `<tr>
+      <td>${op.nombre || '—'}</td>
+      <td>${op.nit || '—'}</td>
+      <td>${op.nim || '—'}</td>
+      <td>${formatDate(op.fecha)}</td>
+      <td><span class="badge badge-${state}">${state}</span></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  tbody.innerHTML = html;
+  document.getElementById('btnSave').classList.add('visible');
+}
+
+// ===================== SAVE DATA =====================
+function saveData() {
+  if (operatorData.length === 0) return;
+  systemData = [...operatorData];
+  showToast('💾  Datos guardados exitosamente en el sistema');
+  setTimeout(() => { showToast('📅  Los datos estarán disponibles hasta la próxima actualización mensual'); }, 3200);
+}
+
+// ===================== LOGIN OPERADOR =====================
+function doOperatorLogin() {
+  const user = document.getElementById('operatorUser').value.trim();
+  const pass = document.getElementById('operatorPass').value.trim();
+  const err  = document.getElementById('operatorError');
+
+  if (!user || !pass) { err.textContent = 'Por favor complete ambos campos.'; return; }
+  if (USERS_OPERADOR[user] === pass) {
+    err.textContent = '';
+    document.getElementById('operatorUser').value = '';
+    document.getElementById('operatorPass').value = '';
+    goTo('operator');
+  } else {
+    err.textContent = '❌ Usuario o contraseña incorrectos.';
+    document.getElementById('operatorPass').value = '';
+    document.getElementById('operatorPass').focus();
+  }
+}
+
+function doOperatorLogout() {
+  // Limpiar datos cargados al cerrar sesión
+  operatorData = [];
+  renderTable();
+  goTo('home');
+}
+
+// ===================== LOGIN VERIFICADOR =====================
+function doLogin() {
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value.trim();
+  const err  = document.getElementById('loginError');
+
+  if (!user || !pass) { err.textContent = 'Por favor complete ambos campos.'; return; }
+  if (USERS_VERIFICADOR[user] === pass) {
+    err.textContent = '';
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+    goTo('consulta');
+  } else {
+    err.textContent = '❌ Usuario o contraseña incorrectos.';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginPass').focus();
+  }
+}
+
+function doLogout() {
+  goTo('home');
+}
+
+// ===================== SEARCH =====================
+function doSearch() {
+  const type  = document.getElementById('searchType').value;
+  const query = document.getElementById('searchInput').value.trim().toLowerCase();
+  const spinner = document.getElementById('spinner');
+  const resultCard = document.getElementById('resultCard');
+  const notFound   = document.getElementById('notFound');
+
+  if (!query) { showToast('⚠️  Ingrese un valor para buscar'); return; }
+
+  // Ocultar previos
+  resultCard.classList.remove('show');
+  notFound.classList.remove('show');
+  spinner.classList.add('show');
+
+  // Simular latencia de búsqueda
+  setTimeout(() => {
+    spinner.classList.remove('show');
+
+    const found = systemData.find(op => {
+      const val = (op[type] || '').toLowerCase();
+      return val.includes(query);
+    });
+
+    if (found) {
+      const state = getState(found.fecha);
+      document.getElementById('rcNombre').textContent = found.nombre || '—';
+      document.getElementById('rcNit').textContent     = found.nit || '—';
+      document.getElementById('rcNim').textContent     = found.nim || '—';
+      document.getElementById('rcFecha').textContent   = formatDate(found.fecha);
+
+      const badge = document.getElementById('rcBadge');
+      badge.textContent = state;
+      badge.className = 'badge badge-' + state;
+
+      resultCard.classList.add('show');
+    } else {
+      notFound.classList.add('show');
+    }
+  }, 600);
+}
+
+// ===================== UPDATE STATS =====================
+function updateStats() {
+  let v=0, ve=0, o=0;
+  systemData.forEach(op => {
+    const s = getState(op.fecha);
+    if (s==='vigente') v++;
+    else if (s==='vencido') ve++;
+    else o++;
+  });
+  document.getElementById('statVig').textContent = v;
+  document.getElementById('statVen').textContent = ve;
+  document.getElementById('statObs').textContent = o;
+}
+
+// ===================== DEMO DATA (para pruebas) =====================
+// Cargar datos de ejemplo automáticamente para demostración
+(function loadDemoData() {
+  const hoy = new Date();
+  const addDays = (d, n) => { const r = new Date(d); r.setDate(r.getDate()+n); return r; };
+
+  systemData = [
+    { nombre: 'Minera Los Andes S.A.',        nit: '900123456', nim: 'NIM-2024-001', fecha: addDays(hoy, 180) },
+    { nombre: 'Industrias Mineras del Norte',  nit: '891234567', nim: 'NIM-2024-002', fecha: addDays(hoy, 20)  },
+    { nombre: 'Compañía Minera Estrella',      nit: '800987654', nim: 'NIM-2024-003', fecha: addDays(hoy, -45) },
+    { nombre: 'Recursos Mineros Colombia',     nit: '901234567', nim: 'NIM-2024-004', fecha: addDays(hoy, 90)  },
+    { nombre: 'Minería Andina Ltda.',          nit: '860123456', nim: 'NIM-2024-005', fecha: addDays(hoy, 5)   },
+    { nombre: 'Empresa Minera Andes Sur',      nit: '870654321', nim: 'NIM-2024-006', fecha: addDays(hoy, -120)},
+    { nombre: 'Gold Mining Colombia S.A.S.',   nit: '910111213', nim: 'NIM-2024-007', fecha: addDays(hoy, 300) },
+  ];
+})();
+</script>
+</body>
+</html>
