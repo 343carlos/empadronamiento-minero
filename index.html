@@ -394,6 +394,18 @@ tbody td:first-child { color: var(--text-primary); font-weight: 600; }
     </div>
 
     <button class="btn-save" id="btnSave" onclick="saveData()">💾 Guardar datos en el sistema</button>
+    
+    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center;">
+      <p style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 12px; letter-spacing: 1px;">
+        ADMINISTRACIÓN DEL SISTEMA
+      </p>
+      <button class="nav-btn" onclick="clearAllData()" style="color: var(--danger); border-color: var(--danger); font-size: 0.75rem; padding: 8px 20px;">
+        🗑️ Vaciar todos los datos del sistema
+      </button>
+      <p style="color: var(--text-muted); font-size: 0.68rem; margin-top: 8px; line-height: 1.4;">
+        Esto eliminará todos los registros permanentemente.<br>Úsalo antes de cargar un nuevo Excel mensual.
+      </p>
+    </div>
   </div>
 </div>
 
@@ -493,6 +505,43 @@ let systemData   = [];   // datos guardados en el sistema
 // Credenciales (demo)
 const USERS_VERIFICADOR = { asd: 'asd123', verificador: 'verif2024' };
 const USERS_OPERADOR    = { robert: 'rob123llanos', minero: 'minero2024' };
+
+// ===================== LOCALSTORAGE PERSISTENCE =====================
+// Cargar datos guardados al iniciar la página
+function loadFromStorage() {
+  try {
+    const stored = localStorage.getItem('empadronamiento_minero_data');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Convertir strings de fecha de vuelta a objetos Date
+      systemData = parsed.map(op => ({
+        ...op,
+        fecha: op.fecha ? new Date(op.fecha) : null
+      }));
+      console.log('✅ Datos cargados desde almacenamiento:', systemData.length, 'registros');
+      return true;
+    }
+  } catch (err) {
+    console.error('Error cargando datos del almacenamiento:', err);
+  }
+  return false;
+}
+
+// Guardar datos en localStorage
+function saveToStorage() {
+  try {
+    localStorage.setItem('empadronamiento_minero_data', JSON.stringify(systemData));
+    console.log('✅ Datos guardados en almacenamiento permanente:', systemData.length, 'registros');
+    return true;
+  } catch (err) {
+    console.error('Error guardando datos:', err);
+    showToast('⚠️  Error al guardar datos permanentemente');
+    return false;
+  }
+}
+
+// Cargar datos al iniciar (se ejecuta inmediatamente)
+const hadStoredData = loadFromStorage();
 
 // ===================== NAVIGATION =====================
 function goTo(screen) {
@@ -822,8 +871,56 @@ function renderTable() {
 function saveData() {
   if (operatorData.length === 0) return;
   systemData = [...operatorData];
-  showToast('💾  Datos guardados exitosamente en el sistema');
-  setTimeout(() => { showToast('📅  Los datos estarán disponibles hasta la próxima actualización mensual'); }, 3200);
+  
+  if (saveToStorage()) {
+    showToast('💾  Datos guardados exitosamente en el sistema');
+    setTimeout(() => { 
+      showToast('📦  ' + systemData.length + ' registros guardados permanentemente'); 
+    }, 3200);
+  }
+}
+
+// ===================== CLEAR ALL DATA =====================
+function clearAllData() {
+  const currentCount = systemData.length;
+  
+  if (currentCount === 0) {
+    showToast('ℹ️  No hay datos para eliminar');
+    return;
+  }
+  
+  // Primer nivel de confirmación
+  const msg1 = '⚠️ ¿Está seguro de que desea VACIAR TODOS los datos del sistema?\n\n' +
+               '📊 Se eliminarán ' + currentCount + ' registros permanentemente.\n\n' +
+               '💡 Esta acción es útil cuando necesita actualizar con un nuevo Excel mensual.\n\n' +
+               '¿Continuar?';
+  
+  if (!confirm(msg1)) {
+    return;
+  }
+  
+  // Segundo nivel de confirmación
+  const msg2 = '⚠️⚠️ ÚLTIMA CONFIRMACIÓN ⚠️⚠️\n\n' +
+               '🗑️ Se borrarán ' + currentCount + ' operadores mineros del sistema.\n\n' +
+               'Esta acción NO se puede deshacer.\n\n' +
+               '¿Confirmar eliminación?';
+  
+  if (!confirm(msg2)) {
+    return;
+  }
+  
+  // Limpiar todo
+  systemData = [];
+  operatorData = [];
+  localStorage.removeItem('empadronamiento_minero_data');
+  renderTable();
+  
+  showToast('🗑️  Todos los datos han sido eliminados del sistema');
+  setTimeout(() => {
+    showToast('✅  Sistema limpio. Puede cargar un nuevo Excel ahora.');
+  }, 3200);
+  
+  console.log('🗑️ Sistema limpiado - ' + currentCount + ' registros eliminados');
 }
 
 // ===================== LOGIN OPERADOR =====================
@@ -931,22 +1028,9 @@ function updateStats() {
   document.getElementById('statObs').textContent = o;
 }
 
-// ===================== DEMO DATA (para pruebas) =====================
-// Cargar datos de ejemplo automáticamente para demostración
-(function loadDemoData() {
-  const hoy = new Date();
-  const addDays = (d, n) => { const r = new Date(d); r.setDate(r.getDate()+n); return r; };
-
-  systemData = [
-    { nombre: 'Minera Los Andes S.A.',        nit: '900123456', nim: 'NIM-2024-001', fecha: addDays(hoy, 180) },
-    { nombre: 'Industrias Mineras del Norte',  nit: '891234567', nim: 'NIM-2024-002', fecha: addDays(hoy, 20)  },
-    { nombre: 'Compañía Minera Estrella',      nit: '800987654', nim: 'NIM-2024-003', fecha: addDays(hoy, -45) },
-    { nombre: 'Recursos Mineros Colombia',     nit: '901234567', nim: 'NIM-2024-004', fecha: addDays(hoy, 90)  },
-    { nombre: 'Minería Andina Ltda.',          nit: '860123456', nim: 'NIM-2024-005', fecha: addDays(hoy, 5)   },
-    { nombre: 'Empresa Minera Andes Sur',      nit: '870654321', nim: 'NIM-2024-006', fecha: addDays(hoy, -120)},
-    { nombre: 'Gold Mining Colombia S.A.S.',   nit: '910111213', nim: 'NIM-2024-007', fecha: addDays(hoy, 300) },
-  ];
-})();
+// Los datos se cargan automáticamente desde localStorage al inicio de la página
+// Si no hay datos guardados, systemData quedará como array vacío []
+// Los datos demo fueron removidos - ahora solo se cargan datos reales subidos por operadores
 </script>
 </body>
 </html>
