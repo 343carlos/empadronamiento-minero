@@ -497,7 +497,214 @@ tbody td:first-child { color: var(--text-primary); font-weight: 600; }
 
 <!-- SheetJS removed: loaded inline via a self-contained .xlsx parser below -->
 
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+</head>
+<body>
+
+
+<!-- ============ TOAST ============ -->
+<div class="toast" id="toast"></div>
+
+<!-- ============ SCREEN: HOME ============ -->
+<div class="screen active" id="screen-home">
+  <div class="home-hero">
+    <h1>EMPADRONAMIENTO<br>MINERO</h1>
+    <p class="subtitle">SISTEMA DE REGISTRO Y VERIFICACIÓN DE OPERADORES</p>
+    <div class="role-cards">
+      <div class="role-card" onclick="goTo('operator-login')">
+        <div class="icon">⛏️</div>
+        <h3>ADMINISTRADOR</h3>
+        <p>Los datos de empadronamiento minero se actilizan cada mes</p>
+      </div>
+      <div class="role-card" onclick="goTo('login')">
+        <div class="icon">🔍</div>
+        <h3>Verificador</h3>
+        <p>Acceso restringido para consultar el estado de operadores mineros registrados en el sistema.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREEN: OPERATOR LOGIN ============ -->
+<div class="screen" id="screen-operator-login">
+  <nav class="top-bar">
+    <div class="logo-text">EMPADRONAMIENTO MINERO <span>ACCESO DE OPERADOR</span></div>
+    <div class="nav-right">
+      <button class="nav-btn" onclick="goTo('home')">← Inicio</button>
+    </div>
+  </nav>
+  <div class="login-box">
+    <div class="lock-icon">⛏️</div>
+    <h2>ADMINISTRADOR</h2>
+    <p class="login-sub">INGRESE SUS CREDENCIALES PARA CARGAR DATOS</p>
+    <div class="input-group">
+      <label>Usuario</label>
+      <input type="text" id="operatorUser" placeholder="usuario" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('operatorPass').focus();}" />
+    </div>
+    <div class="input-group">
+      <label>Contraseña</label>
+      <input type="password" id="operatorPass" placeholder="••••••••" onkeydown="if(event.key==='Enter'){event.preventDefault();doOperatorLogin();}" />
+    </div>
+    <button class="btn-login" onclick="doOperatorLogin()">Ingresar</button>
+    <div class="login-error" id="operatorError"></div>
+  </div>
+</div>
+
+<!-- ============ SCREEN: OPERATOR ============ -->
+<div class="screen" id="screen-operator">
+  <nav class="top-bar">
+    <div class="logo-text">EMPADRONAMIENTO MINERO <span>PANEL DE ADMINISTRADOR</span></div>
+    <div class="nav-right">
+      <button class="btn-logout" onclick="doOperatorLogout()">Cerrar sesión</button>
+    </div>
+  </nav>
+  <div class="panel-wrap">
+    <div class="panel-title">📂 CARGA DE DATOS</div>
+    <div class="panel-subtitle">Sube un archivo Excel (.xlsx / .xls) con los datos de operadores mineros</div>
+
+    <div class="upload-zone" id="uploadZone">
+      <div class="uz-icon">📤</div>
+      <p><strong>Arrastrar y soltar</strong> un archivo Excel aquí</p>
+      <p style="margin-top:6px; font-size:0.72rem;">o haz clic para seleccionar · Formatos: .xlsx, .xls</p>
+      <input type="file" id="fileInput" accept=".xlsx,.xls" />
+    </div>
+
+    <div class="data-table-wrap">
+      <div class="data-table-header">
+        <h4>📋 Datos cargados</h4>
+        <span class="row-count" id="rowCount">0 registros</span>
+      </div>
+      <div id="tableBody">
+        <div class="empty-msg">No hay datos cargados. Sube un archivo Excel para comenzar.</div>
+      </div>
+    </div>
+
+    <button class="btn-save" id="btnSave" onclick="saveData()">💾 Guardar datos en el sistema</button>
+    
+    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center;">
+      <p style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 12px; letter-spacing: 1px;">
+        ADMINISTRACIÓN DEL SISTEMA
+      </p>
+      <button class="nav-btn" onclick="clearAllData()" style="color: var(--danger); border-color: var(--danger); font-size: 0.75rem; padding: 8px 20px;">
+        🗑️ Vaciar todos los datos del sistema
+      </button>
+      <p style="color: var(--text-muted); font-size: 0.68rem; margin-top: 8px; line-height: 1.4;">
+        Esto eliminará todos los registros permanentemente.<br>Úsalo antes de cargar un nuevo Excel mensual.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREEN: LOGIN ============ -->
+<div class="screen" id="screen-login">
+  <nav class="top-bar">
+    <div class="logo-text">EMPADRONAMIENTO MINERO <span>ACCESO RESTRINGIDO</span></div>
+    <div class="nav-right">
+      <button class="nav-btn" onclick="goTo('home')">← Inicio</button>
+    </div>
+  </nav>
+  <div class="login-box">
+    <div class="lock-icon">🔐</div>
+    <h2>VERIFICADOR</h2>
+    <p class="login-sub">INGRESE SUS CREDENCIALES PARA CONTINUAR</p>
+    <div class="input-group">
+      <label>Usuario</label>
+      <input type="text" id="loginUser" placeholder="usuario" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('loginPass').focus();}" />
+    </div>
+    <div class="input-group">
+      <label>Contraseña</label>
+      <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter'){event.preventDefault();doLogin();}" />
+    </div>
+    <button class="btn-login" onclick="doLogin()">Ingresar</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ============ SCREEN: CONSULTA ============ -->
+<div class="screen" id="screen-consulta">
+  <nav class="top-bar">
+    <div class="logo-text">EMPADRONAMIENTO MINERO <span>PANEL DE CONSULTA</span></div>
+    <div class="nav-right">
+      <button class="btn-logout" onclick="doLogout()">Cerrar sesión</button>
+    </div>
+  </nav>
+
+
+    <div class="search-box">
+      <div class="search-label">🔎 Buscar operador minero</div>
+      <div class="search-row">
+        <select id="searchType">
+          <option value="nombre">Nombre / Razón Social</option>
+          <option value="nit">NIT</option>
+          <option value="nim">NIM</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="Ingrese el valor de búsqueda..." onkeydown="if(event.key==='Enter') doSearch()" />
+        <button class="btn-search" onclick="doSearch()">Buscar</button>
+      </div>
+    </div>
+
+    <div class="result-area">
+      <div class="spinner" id="spinner"></div>
+
+      <!-- Resultado encontrado -->
+      <div class="result-card" id="resultCard">
+        <div class="rc-header">
+          <div>
+            <div class="rc-title" id="rcNombre">—</div>
+            <div class="rc-sub">OPERADOR MINERO REGISTRADO</div>
+          </div>
+          <span class="badge" id="rcBadge">—</span>
+        </div>
+        <div class="rc-grid">
+          <div class="rc-field">
+            <label>NIT</label>
+            <div class="val" id="rcNit">—</div>
+          </div>
+          <div class="rc-field">
+            <label>NIM</label>
+            <div class="val" id="rcNim">—</div>
+          </div>
+          <div class="rc-field full">
+            <label>Fecha de Vencimiento del Registro</label>
+            <div class="val" id="rcFecha">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No encontrado -->
+      <div class="not-found" id="notFound">
+        <div class="nf-icon">⚠️</div>
+        <h3>Operador minero no encontrado</h3>
+        <p>El operador minero no se encuentra registrado en el sistema.<br>Verifique los datos proporcionados e intente nuevamente.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SheetJS removed: loaded inline via a self-contained .xlsx parser below -->
+
 <script>
+// ===================== FIREBASE CONFIGURATION =====================
+const firebaseConfig = {
+  apiKey: "AIzaSyBEcgwzKXXV9yq13L20RR3IcJwqdm0EOE",
+  authDomain: "empadronamiento-minero.firebaseapp.com",
+  databaseURL: "https://empadronamiento-minero-default-rtdb.firebaseio.com",
+  projectId: "empadronamiento-minero",
+  storageBucket: "empadronamiento-minero.firebasestorage.app",
+  messagingSenderId: "628238254649",
+  appId: "1:628238254649:web:1a5dc65792b5f4e3dbc3e8"
+};
+
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const operadoresRef = database.ref('operadores');
+
+console.log('🔥 Firebase inicializado correctamente');
+
 // ===================== STATE =====================
 let operatorData = [];   // datos cargados desde Excel (pendientes)
 let systemData   = [];   // datos guardados en el sistema
@@ -506,42 +713,108 @@ let systemData   = [];   // datos guardados en el sistema
 const USERS_VERIFICADOR = { asd: 'asd123', verificador: 'verif2024' };
 const USERS_OPERADOR    = { robert: 'rob123llanos', minero: 'minero2024' };
 
-// ===================== LOCALSTORAGE PERSISTENCE =====================
-// Cargar datos guardados al iniciar la página
-function loadFromStorage() {
-  try {
-    const stored = localStorage.getItem('empadronamiento_minero_data');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      // Convertir strings de fecha de vuelta a objetos Date
-      systemData = parsed.map(op => ({
-        ...op,
-        fecha: op.fecha ? new Date(op.fecha) : null
-      }));
-      console.log('✅ Datos cargados desde almacenamiento:', systemData.length, 'registros');
-      return true;
+// ===================== FIREBASE DATABASE FUNCTIONS =====================
+// Cargar datos desde Firebase al iniciar
+function loadFromFirebase() {
+  operadoresRef.once('value')
+    .then((snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        // Convertir objeto de Firebase a array
+        systemData = Object.values(data).map(op => ({
+          ...op,
+          fecha: op.fecha ? new Date(op.fecha) : null
+        }));
+        console.log('✅ Datos cargados desde Firebase:', systemData.length, 'registros');
+        
+        // Actualizar estadísticas si estamos en la pantalla de consulta
+        const consultaScreen = document.getElementById('screen-consulta');
+        if (consultaScreen && consultaScreen.classList.contains('active')) {
+          updateStats();
+        }
+      } else {
+        console.log('ℹ️ No hay datos en Firebase todavía');
+        systemData = [];
+      }
+    })
+    .catch((error) => {
+      console.error('❌ Error cargando datos de Firebase:', error);
+      showToast('⚠️ Error al cargar datos de la nube');
+    });
+}
+
+// Guardar datos en Firebase
+function saveToFirebase() {
+  return new Promise((resolve, reject) => {
+    showToast('⏳ Guardando en la nube...');
+    
+    // Convertir array a objeto con IDs únicos
+    const dataToSave = {};
+    systemData.forEach((op, index) => {
+      const id = 'op_' + Date.now() + '_' + index;
+      dataToSave[id] = {
+        nombre: op.nombre,
+        nit: op.nit,
+        nim: op.nim,
+        fecha: op.fecha ? op.fecha.toISOString() : null,
+        timestamp: Date.now()
+      };
+    });
+    
+    // Guardar en Firebase
+    operadoresRef.set(dataToSave)
+      .then(() => {
+        console.log('✅ Datos guardados en Firebase:', systemData.length, 'registros');
+        resolve(true);
+      })
+      .catch((error) => {
+        console.error('❌ Error guardando en Firebase:', error);
+        showToast('⚠️ Error al guardar en la nube');
+        reject(error);
+      });
+  });
+}
+
+// Limpiar todos los datos de Firebase
+function clearFirebase() {
+  return new Promise((resolve, reject) => {
+    operadoresRef.remove()
+      .then(() => {
+        console.log('🗑️ Datos eliminados de Firebase');
+        resolve(true);
+      })
+      .catch((error) => {
+        console.error('❌ Error eliminando datos de Firebase:', error);
+        reject(error);
+      });
+  });
+}
+
+// Cargar datos al iniciar la página
+loadFromFirebase();
+
+// Escuchar cambios en tiempo real
+operadoresRef.on('value', (snapshot) => {
+  const data = snapshot.val();
+  if (data) {
+    const newData = Object.values(data).map(op => ({
+      ...op,
+      fecha: op.fecha ? new Date(op.fecha) : null
+    }));
+    
+    // Solo actualizar si hay cambios reales
+    if (JSON.stringify(newData) !== JSON.stringify(systemData)) {
+      systemData = newData;
+      console.log('🔄 Datos actualizados en tiempo real:', systemData.length, 'registros');
+      
+      // Actualizar estadísticas si estamos en consulta
+      const consultaScreen = document.getElementById('screen-consulta');
+      if (consultaScreen && consultaScreen.classList.contains('active')) {
+        updateStats();
+      }
     }
-  } catch (err) {
-    console.error('Error cargando datos del almacenamiento:', err);
   }
-  return false;
-}
-
-// Guardar datos en localStorage
-function saveToStorage() {
-  try {
-    localStorage.setItem('empadronamiento_minero_data', JSON.stringify(systemData));
-    console.log('✅ Datos guardados en almacenamiento permanente:', systemData.length, 'registros');
-    return true;
-  } catch (err) {
-    console.error('Error guardando datos:', err);
-    showToast('⚠️  Error al guardar datos permanentemente');
-    return false;
-  }
-}
-
-// Cargar datos al iniciar (se ejecuta inmediatamente)
-const hadStoredData = loadFromStorage();
+});
 
 // ===================== NAVIGATION =====================
 function goTo(screen) {
@@ -868,20 +1141,23 @@ function renderTable() {
 }
 
 // ===================== SAVE DATA =====================
-function saveData() {
+async function saveData() {
   if (operatorData.length === 0) return;
   systemData = [...operatorData];
   
-  if (saveToStorage()) {
-    showToast('💾  Datos guardados exitosamente en el sistema');
+  try {
+    await saveToFirebase();
+    showToast('💾  Datos guardados exitosamente en la nube');
     setTimeout(() => { 
-      showToast('📦  ' + systemData.length + ' registros guardados permanentemente'); 
+      showToast('☁️  ' + systemData.length + ' registros disponibles en todas las computadoras'); 
     }, 3200);
+  } catch (error) {
+    showToast('❌  Error al guardar. Intente nuevamente.');
   }
 }
 
 // ===================== CLEAR ALL DATA =====================
-function clearAllData() {
+async function clearAllData() {
   const currentCount = systemData.length;
   
   if (currentCount === 0) {
@@ -891,8 +1167,9 @@ function clearAllData() {
   
   // Primer nivel de confirmación
   const msg1 = '⚠️ ¿Está seguro de que desea VACIAR TODOS los datos del sistema?\n\n' +
-               '📊 Se eliminarán ' + currentCount + ' registros permanentemente.\n\n' +
+               '📊 Se eliminarán ' + currentCount + ' registros permanentemente DE LA NUBE.\n\n' +
                '💡 Esta acción es útil cuando necesita actualizar con un nuevo Excel mensual.\n\n' +
+               '⚠️ Los datos se borrarán de TODAS las computadoras.\n\n' +
                '¿Continuar?';
   
   if (!confirm(msg1)) {
@@ -901,7 +1178,8 @@ function clearAllData() {
   
   // Segundo nivel de confirmación
   const msg2 = '⚠️⚠️ ÚLTIMA CONFIRMACIÓN ⚠️⚠️\n\n' +
-               '🗑️ Se borrarán ' + currentCount + ' operadores mineros del sistema.\n\n' +
+               '🗑️ Se borrarán ' + currentCount + ' operadores mineros de la nube.\n\n' +
+               'Esta acción afectará a TODOS los usuarios.\n\n' +
                'Esta acción NO se puede deshacer.\n\n' +
                '¿Confirmar eliminación?';
   
@@ -910,17 +1188,24 @@ function clearAllData() {
   }
   
   // Limpiar todo
-  systemData = [];
-  operatorData = [];
-  localStorage.removeItem('empadronamiento_minero_data');
-  renderTable();
+  showToast('⏳ Eliminando datos de la nube...');
   
-  showToast('🗑️  Todos los datos han sido eliminados del sistema');
-  setTimeout(() => {
-    showToast('✅  Sistema limpio. Puede cargar un nuevo Excel ahora.');
-  }, 3200);
-  
-  console.log('🗑️ Sistema limpiado - ' + currentCount + ' registros eliminados');
+  try {
+    await clearFirebase();
+    systemData = [];
+    operatorData = [];
+    renderTable();
+    
+    showToast('🗑️  Todos los datos han sido eliminados de la nube');
+    setTimeout(() => {
+      showToast('✅  Sistema limpio. Puede cargar un nuevo Excel ahora.');
+    }, 3200);
+    
+    console.log('🗑️ Sistema limpiado - ' + currentCount + ' registros eliminados de Firebase');
+  } catch (error) {
+    showToast('❌  Error al eliminar datos. Intente nuevamente.');
+    console.error('Error:', error);
+  }
 }
 
 // ===================== LOGIN OPERADOR =====================
@@ -1028,9 +1313,7 @@ function updateStats() {
   document.getElementById('statObs').textContent = o;
 }
 
-// Los datos se cargan automáticamente desde localStorage al inicio de la página
-// Si no hay datos guardados, systemData quedará como array vacío []
-// Los datos demo fueron removidos - ahora solo se cargan datos reales subidos por operadores
+// Los datos se cargan automáticamente desde Firebase al inicio de la página
 </script>
 </body>
 </html>
