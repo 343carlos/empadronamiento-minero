@@ -702,11 +702,15 @@ function loadFromFirebase() {
       const data = snapshot.val();
       if (data) {
         // Convertir objeto de Firebase a array
-        systemData = Object.values(data).map(op => ({
+        let rawData = Object.values(data).map(op => ({
           ...op,
           fecha: op.fecha ? new Date(op.fecha) : null
         }));
-        console.log('✅ Datos cargados desde Firebase:', systemData.length, 'registros');
+        
+        // Filtrar duplicados y mantener solo el registro más reciente
+        systemData = filterDuplicates(rawData);
+        
+        console.log('✅ Datos cargados desde Firebase:', rawData.length, 'registros totales,', systemData.length, 'únicos');
         
         // Actualizar estadísticas si estamos en la pantalla de consulta
         const consultaScreen = document.getElementById('screen-consulta');
@@ -826,16 +830,16 @@ function showToast(msg, duration = 2800) {
 function excelDateToJS(serial) {
   if (typeof serial !== 'number' || isNaN(serial)) return null;
   
-  // Excel epoch: December 30, 1899
-  const excelEpoch = new Date(1899, 11, 30); // Meses en JS son 0-indexed (11 = diciembre)
+  // Excel epoch: December 30, 1899 en UTC para evitar problemas de zona horaria
+  const excelEpoch = Date.UTC(1899, 11, 30); // Meses en JS son 0-indexed (11 = diciembre)
   
   // Excel bug del año bisiesto 1900: serial 60 = feb 29, 1900 (que no existe)
   // Para serial >= 61, restamos 1 día para compensar
   const offset = serial >= 61 ? serial - 1 : serial;
   
-  // Convertir días a milisegundos y sumar al epoch
+  // Convertir días a milisegundos y sumar al epoch, creando fecha en UTC
   const ms = offset * 86400000;
-  return new Date(excelEpoch.getTime() + ms);
+  return new Date(excelEpoch + ms);
 }
 
 // Parser mínimo de .xlsx usando DecompressionStream (Web API nativa, sin librerías)
@@ -1119,6 +1123,34 @@ function renderTable() {
   html += '</tbody></table>';
   tbody.innerHTML = html;
   document.getElementById('btnSave').classList.add('visible');
+}
+
+// ===================== FILTER DUPLICATES =====================
+// Filtra registros duplicados (misma razón social, NIT y NIM)
+// y mantiene solo el registro con la fecha más reciente
+function filterDuplicates(data) {
+  const uniqueMap = new Map();
+  
+  data.forEach(record => {
+    // Crear una clave única basada en nombre (razón social), NIT y NIM
+    const key = `${(record.nombre || '').trim().toLowerCase()}_${(record.nit || '').trim()}_${(record.nim || '').trim()}`;
+    
+    // Si la clave ya existe, comparar fechas
+    if (uniqueMap.has(key)) {
+      const existing = uniqueMap.get(key);
+      const existingDate = existing.fecha instanceof Date ? existing.fecha : new Date(0);
+      const currentDate = record.fecha instanceof Date ? record.fecha : new Date(0);
+      
+      // Solo reemplazar si la nueva fecha es más reciente
+      if (currentDate > existingDate) {
+        uniqueMap.set(key, record);
+      }
+    } else {
+      uniqueMap.set(key, record);
+    }
+  });
+  
+  return Array.from(uniqueMap.values());
 }
 
 // ===================== SAVE DATA =====================
