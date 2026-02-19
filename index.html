@@ -832,7 +832,7 @@ function parseLocalDate(isoStr) {
   // Extraer solo YYYY-MM-DD para evitar conversión UTC→local
   const part = isoStr.substring(0, 10); // "2028-02-12"
   const [y, m, d] = part.split('-').map(Number);
-  return new Date(y, m - 1, d, 12, 0, 0); // fecha local sin desfase
+  return new Date(y, m - 1, d, 24, 0, 0); // fecha local sin desfase
 } 
 function excelDateToJS(serial) {
   if (typeof serial !== 'number' || isNaN(serial)) return null;
