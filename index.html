@@ -840,6 +840,7 @@ function excelDateToJS(serial) {
   // Convertir días a milisegundos y sumar al epoch, creando fecha en UTC
   const ms = offset * 86400000;
   return new Date(excelEpoch + ms);
+  return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 }
 
 // Parser mínimo de .xlsx usando DecompressionStream (Web API nativa, sin librerías)
