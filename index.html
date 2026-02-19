@@ -704,7 +704,7 @@ function loadFromFirebase() {
         // Convertir objeto de Firebase a array
         let rawData = Object.values(data).map(op => ({
           ...op,
-          fecha: op.fecha ? new Date(op.fecha) : null
+          fecha: op.fecha ? parseLocalDate(op.fecha) : null
         }));
         
         // Filtrar duplicados y mantener solo el registro más reciente
@@ -784,7 +784,7 @@ operadoresRef.on('value', (snapshot) => {
   if (data) {
     const newData = Object.values(data).map(op => ({
       ...op,
-      fecha: op.fecha ? new Date(op.fecha) : null
+      fecha: op.fecha ? parseLocalDate(op.fecha) : null
     }));
     
     // Solo actualizar si hay cambios reales
@@ -827,6 +827,13 @@ function showToast(msg, duration = 2800) {
 // Convierte fecha serial de Excel → Date JS
 // Excel cuenta días desde December 30, 1899 (no January 1, 1900)
 // Excel tiene un bug heredado de Lotus 1-2-3: trata 1900 como año bisiesto (no lo es)
+function parseLocalDate(isoStr) {
+  if (!isoStr) return null;
+  // Extraer solo YYYY-MM-DD para evitar conversión UTC→local
+  const part = isoStr.substring(0, 10); // "2028-02-12"
+  const [y, m, d] = part.split('-').map(Number);
+  return new Date(y, m - 1, d); // fecha local sin desfase
+} 
 function excelDateToJS(serial) {
   if (typeof serial !== 'number' || isNaN(serial)) return null;
   
