@@ -34,7 +34,7 @@
 
 html { scroll-behavior: smooth; }
 body {
-  background: var(--bg-deep);
+  background: linear-gradient(135deg, #0a1f1a 0%, #0a1412 40%, #0a0e1a 100%);
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
@@ -45,11 +45,31 @@ body {
 body::before {
   content: '';
   position: fixed; inset: 0; z-index: 0;
-  background-image:
-    linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
+  background-image: 
+    linear-gradient(rgba(0, 212, 170, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 170, 0.02) 1px, transparent 1px);
   background-size: 60px 60px;
   pointer-events: none;
+}
+
+/* ===================== EFECTO DE BRILLO VERDE ADICIONAL ===================== */
+body::after {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 40%, rgba(0, 212, 170, 0.08) 0%, transparent 50%);
+  z-index: 0;
+  pointer-events: none;
+  animation: subtleShift 20s ease-in-out infinite;
+}
+
+@keyframes subtleShift {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(2%, 1%) rotate(0.5deg); }
+  66% { transform: translate(-1%, 2%) rotate(-0.5deg); }
 }
 
 /* ===================== SCREENS ===================== */
@@ -221,7 +241,7 @@ tbody td:first-child { color: var(--text-primary); font-weight: 600; }
 
 /* ===================== CONSULTA SCREEN ===================== */
 #screen-consulta { padding-top: 80px; align-items: stretch; justify-content: flex-start; }
-.consulta-wrap { width: 100%; max-width: 720px; padding: 40px 24px 60px; }
+.consulta-wrap { width: 100%; max-width: 720px; padding: 40px 24px 60px; margin: 0 auto; }
 
 .search-box {
   background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
@@ -328,7 +348,7 @@ tbody td:first-child { color: var(--text-primary); font-weight: 600; }
       <div class="role-card" onclick="goTo('operator-login')">
         <div class="icon">⛏️</div>
         <h3>ADMINISTRADOR</h3>
-        <p>Los datos de empadronamiento minero se actilizan cada mes</p>
+        <p>Los datos de empadronamiento minero se actualizan cada mes</p>
       </div>
       <div class="role-card" onclick="goTo('login')">
         <div class="icon">🔍</div>
@@ -443,6 +463,24 @@ tbody td:first-child { color: var(--text-primary); font-weight: 600; }
     </div>
   </nav>
 
+  <div class="consulta-wrap">
+    <div class="stats-bar">
+      <div class="stat-pill">
+        <div class="sp-dot green"></div>
+        <span class="sp-num" id="statVig">0</span>
+        <span class="sp-label">Vigentes</span>
+      </div>
+      <div class="stat-pill">
+        <div class="sp-dot red"></div>
+        <span class="sp-num" id="statVen">0</span>
+        <span class="sp-label">Vencidos</span>
+      </div>
+      <div class="stat-pill">
+        <div class="sp-dot yellow"></div>
+        <span class="sp-num" id="statObs">0</span>
+        <span class="sp-label">Observados</span>
+      </div>
+    </div>
 
     <div class="search-box">
       <div class="search-label">🔎 Buscar operador minero</div>
@@ -494,178 +532,10 @@ tbody td:first-child { color: var(--text-primary); font-weight: 600; }
     </div>
   </div>
 </div>
-
-<!-- SheetJS removed: loaded inline via a self-contained .xlsx parser below -->
-
 
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-</head>
-<body>
-
-
-<!-- ============ TOAST ============ -->
-<div class="toast" id="toast"></div>
-
-
-<!-- ============ SCREEN: OPERATOR LOGIN ============ -->
-<div class="screen" id="screen-operator-login">
-  <nav class="top-bar">
-    <div class="logo-text">EMPADRONAMIENTO MINERO <span>ACCESO DE OPERADOR</span></div>
-    <div class="nav-right">
-      <button class="nav-btn" onclick="goTo('home')">← Inicio</button>
-    </div>
-  </nav>
-  <div class="login-box">
-    <div class="lock-icon">⛏️</div>
-    <h2>ADMINISTRADOR</h2>
-    <p class="login-sub">INGRESE SUS CREDENCIALES PARA CARGAR DATOS</p>
-    <div class="input-group">
-      <label>Usuario</label>
-      <input type="text" id="operatorUser" placeholder="usuario" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('operatorPass').focus();}" />
-    </div>
-    <div class="input-group">
-      <label>Contraseña</label>
-      <input type="password" id="operatorPass" placeholder="••••••••" onkeydown="if(event.key==='Enter'){event.preventDefault();doOperatorLogin();}" />
-    </div>
-    <button class="btn-login" onclick="doOperatorLogin()">Ingresar</button>
-    <div class="login-error" id="operatorError"></div>
-  </div>
-</div>
-
-<!-- ============ SCREEN: OPERATOR ============ -->
-<div class="screen" id="screen-operator">
-  <nav class="top-bar">
-    <div class="logo-text">EMPADRONAMIENTO MINERO <span>PANEL DE ADMINISTRADOR</span></div>
-    <div class="nav-right">
-      <button class="btn-logout" onclick="doOperatorLogout()">Cerrar sesión</button>
-    </div>
-  </nav>
-  <div class="panel-wrap">
-    <div class="panel-title">📂 CARGA DE DATOS</div>
-    <div class="panel-subtitle">Sube un archivo Excel (.xlsx / .xls) con los datos de operadores mineros</div>
-
-    <div class="upload-zone" id="uploadZone">
-      <div class="uz-icon">📤</div>
-      <p><strong>Arrastrar y soltar</strong> un archivo Excel aquí</p>
-      <p style="margin-top:6px; font-size:0.72rem;">o haz clic para seleccionar · Formatos: .xlsx, .xls</p>
-      <input type="file" id="fileInput" accept=".xlsx,.xls" />
-    </div>
-
-    <div class="data-table-wrap">
-      <div class="data-table-header">
-        <h4>📋 Datos cargados</h4>
-        <span class="row-count" id="rowCount">0 registros</span>
-      </div>
-      <div id="tableBody">
-        <div class="empty-msg">No hay datos cargados. Sube un archivo Excel para comenzar.</div>
-      </div>
-    </div>
-
-    <button class="btn-save" id="btnSave" onclick="saveData()">💾 Guardar datos en el sistema</button>
-    
-    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center;">
-      <p style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 12px; letter-spacing: 1px;">
-        ADMINISTRACIÓN DEL SISTEMA
-      </p>
-      <button class="nav-btn" onclick="clearAllData()" style="color: var(--danger); border-color: var(--danger); font-size: 0.75rem; padding: 8px 20px;">
-        🗑️ Vaciar todos los datos del sistema
-      </button>
-      <p style="color: var(--text-muted); font-size: 0.68rem; margin-top: 8px; line-height: 1.4;">
-        Esto eliminará todos los registros permanentemente.<br>Úsalo antes de cargar un nuevo Excel mensual.
-      </p>
-    </div>
-  </div>
-</div>
-
-<!-- ============ SCREEN: LOGIN ============ -->
-<div class="screen" id="screen-login">
-  <nav class="top-bar">
-    <div class="logo-text">EMPADRONAMIENTO MINERO <span>ACCESO RESTRINGIDO</span></div>
-    <div class="nav-right">
-      <button class="nav-btn" onclick="goTo('home')">← Inicio</button>
-    </div>
-  </nav>
-  <div class="login-box">
-    <div class="lock-icon">🔐</div>
-    <h2>VERIFICADOR</h2>
-    <p class="login-sub">INGRESE SUS CREDENCIALES PARA CONTINUAR</p>
-    <div class="input-group">
-      <label>Usuario</label>
-      <input type="text" id="loginUser" placeholder="usuario" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('loginPass').focus();}" />
-    </div>
-    <div class="input-group">
-      <label>Contraseña</label>
-      <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter'){event.preventDefault();doLogin();}" />
-    </div>
-    <button class="btn-login" onclick="doLogin()">Ingresar</button>
-    <div class="login-error" id="loginError"></div>
-  </div>
-</div>
-
-<!-- ============ SCREEN: CONSULTA ============ -->
-<div class="screen" id="screen-consulta">
-  <nav class="top-bar">
-    <div class="logo-text">EMPADRONAMIENTO MINERO <span>PANEL DE CONSULTA</span></div>
-    <div class="nav-right">
-      <button class="btn-logout" onclick="doLogout()">Cerrar sesión</button>
-    </div>
-  </nav>
-
-
-    <div class="search-box">
-      <div class="search-label">🔎 Buscar operador minero</div>
-      <div class="search-row">
-        <select id="searchType">
-          <option value="nombre">Nombre / Razón Social</option>
-          <option value="nit">NIT</option>
-          <option value="nim">NIM</option>
-        </select>
-        <input type="text" id="searchInput" placeholder="Ingrese el valor de búsqueda..." onkeydown="if(event.key==='Enter') doSearch()" />
-        <button class="btn-search" onclick="doSearch()">Buscar</button>
-      </div>
-    </div>
-
-    <div class="result-area">
-      <div class="spinner" id="spinner"></div>
-
-      <!-- Resultado encontrado -->
-      <div class="result-card" id="resultCard">
-        <div class="rc-header">
-          <div>
-            <div class="rc-title" id="rcNombre">—</div>
-            <div class="rc-sub">OPERADOR MINERO REGISTRADO</div>
-          </div>
-          <span class="badge" id="rcBadge">—</span>
-        </div>
-        <div class="rc-grid">
-          <div class="rc-field">
-            <label>NIT</label>
-            <div class="val" id="rcNit">—</div>
-          </div>
-          <div class="rc-field">
-            <label>NIM</label>
-            <div class="val" id="rcNim">—</div>
-          </div>
-          <div class="rc-field full">
-            <label>Fecha de Vencimiento del Registro</label>
-            <div class="val" id="rcFecha">—</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- No encontrado -->
-      <div class="not-found" id="notFound">
-        <div class="nf-icon">⚠️</div>
-        <h3>Operador minero no encontrado</h3>
-        <p>El operador minero no se encuentra registrado en el sistema.<br>Verifique los datos proporcionados e intente nuevamente.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- SheetJS removed: loaded inline via a self-contained .xlsx parser below -->
 
 <script>
 // ===================== FIREBASE CONFIGURATION =====================
@@ -834,6 +704,7 @@ function parseLocalDate(isoStr) {
   const [y, m, d] = part.split('-').map(Number);
   return new Date(y, m - 1, d, 24, 0, 0); // fecha local sin desfase
 } 
+
 function excelDateToJS(serial) {
   if (typeof serial !== 'number' || isNaN(serial)) return null;
   
@@ -1279,7 +1150,7 @@ function doLogout() {
   goTo('home');
 }
 
-// ===================== SEARCH =====================
+// ===================== SEARCH (CORREGIDO) =====================
 function doSearch() {
   const type  = document.getElementById('searchType').value;
   const query = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -1287,23 +1158,47 @@ function doSearch() {
   const resultCard = document.getElementById('resultCard');
   const notFound   = document.getElementById('notFound');
 
-  if (!query) { showToast('⚠️  Ingrese un valor para buscar'); return; }
+  if (!query) { 
+    showToast('⚠️  Ingrese un valor para buscar'); 
+    return; 
+  }
 
-  // Ocultar previos
+  // Ocultar resultados previos
   resultCard.classList.remove('show');
   notFound.classList.remove('show');
   spinner.classList.add('show');
 
-  // Simular latencia de búsqueda
+  // Pequeña demora para mostrar el spinner (mejora UX)
   setTimeout(() => {
     spinner.classList.remove('show');
 
-    const found = systemData.find(op => {
-      const val = (op[type] || '').toLowerCase();
+    // PASO 1: Encontrar TODOS los registros que coinciden con la búsqueda
+    const allMatches = systemData.filter(op => {
+      // Asegurarse de que el campo existe antes de convertirlo a string
+      const fieldValue = op[type];
+      if (!fieldValue) return false;
+      
+      const val = String(fieldValue).toLowerCase();
       return val.includes(query);
     });
 
-    if (found) {
+    console.log('🔍 Registros encontrados:', allMatches.length); // Debug
+
+    if (allMatches.length > 0) {
+      // PASO 2: Entre todos los registros, seleccionar el de fecha MÁS RECIENTE
+      const found = allMatches.reduce((latest, current) => {
+        // Si no hay latest todavía, usar current
+        if (!latest) return current;
+        
+        // Obtener fechas (manejar casos nulos)
+        const latestDate = latest.fecha instanceof Date ? latest.fecha.getTime() : 0;
+        const currentDate = current.fecha instanceof Date ? current.fecha.getTime() : 0;
+        
+        // Comparar: devolver el que tenga fecha más reciente (mayor timestamp)
+        return currentDate > latestDate ? current : latest;
+      }, null);
+
+      // Mostrar el registro más reciente encontrado
       const state = getState(found.fecha);
       document.getElementById('rcNombre').textContent = found.nombre || '—';
       document.getElementById('rcNit').textContent     = found.nit || '—';
@@ -1315,10 +1210,15 @@ function doSearch() {
       badge.className = 'badge badge-' + state;
 
       resultCard.classList.add('show');
+      
+      // Mensaje informativo si había múltiples registros
+      if (allMatches.length > 1) {
+        showToast(`ℹ️  Se encontraron ${allMatches.length} registros. Mostrando el más reciente.`, 3000);
+      }
     } else {
       notFound.classList.add('show');
     }
-  }, 600);
+  }, 600); // Mantenemos la latencia simulada
 }
 
 // ===================== UPDATE STATS =====================
@@ -1330,9 +1230,15 @@ function updateStats() {
     else if (s==='vencido') ve++;
     else o++;
   });
-  document.getElementById('statVig').textContent = v;
-  document.getElementById('statVen').textContent = ve;
-  document.getElementById('statObs').textContent = o;
+  
+  // Actualizar elementos del DOM
+  const statVig = document.getElementById('statVig');
+  const statVen = document.getElementById('statVen');
+  const statObs = document.getElementById('statObs');
+  
+  if (statVig) statVig.textContent = v;
+  if (statVen) statVen.textContent = ve;
+  if (statObs) statObs.textContent = o;
 }
 
 // Los datos se cargan automáticamente desde Firebase al inicio de la página
