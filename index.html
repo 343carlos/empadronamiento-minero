@@ -91,9 +91,8 @@ body::after {
   transition: all .25s;
 }
 .top-bar .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
-.top-bar .nav-btn.active-tab { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
 
-/* ===================== ROLE SELECTION (HOME) ===================== */
+/* ===================== ROLE SELECTION ===================== */
 #screen-home { background: var(--bg-deep); }
 .home-hero { text-align: center; max-width: 700px; padding: 0 24px; }
 .home-hero h1 {
@@ -115,13 +114,7 @@ body::after {
   transition: all .3s cubic-bezier(.4,0,.2,1);
   position: relative; overflow: hidden;
 }
-.role-card::before {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(135deg, transparent 60%, var(--accent-dim));
-  opacity: 0; transition: opacity .3s;
-}
 .role-card:hover { border-color: var(--accent); transform: translateY(-6px); box-shadow: 0 12px 40px var(--accent-glow); }
-.role-card:hover::before { opacity: 1; }
 .role-card .icon { font-size: 2.4rem; margin-bottom: 16px; position: relative; z-index:1; }
 .role-card h3 { font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; position: relative; z-index:1; }
 .role-card p { color: var(--text-secondary); font-size: 0.82rem; line-height: 1.5; position: relative; z-index:1; }
@@ -148,27 +141,17 @@ body::after {
 
 /* Table */
 .data-table-wrap { background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
-.data-table-header {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 18px 22px; border-bottom: 1px solid var(--border);
-}
+.data-table-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 1px solid var(--border); }
 .data-table-header h4 { font-size: 0.82rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-secondary); }
 .data-table-header .row-count { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; color: var(--accent); }
 table { width: 100%; border-collapse: collapse; }
-thead th {
-  text-align: left; padding: 12px 18px; font-size: 0.75rem; letter-spacing: 2px;
-  text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border);
-  font-weight: 600;
-}
+thead th { text-align: left; padding: 12px 18px; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); font-weight: 600; }
 tbody tr { border-bottom: 1px solid var(--border); transition: background .2s; }
 tbody tr:hover { background: rgba(0,212,170,0.04); }
 tbody td { padding: 13px 18px; font-size: 0.85rem; color: var(--text-secondary); }
 tbody td:first-child { color: var(--text-primary); font-weight: 600; }
 
-.badge {
-  display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;
-  letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700;
-}
+.badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; }
 .badge-vigente { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-glow); }
 .badge-vencido { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(255,78,106,0.3); }
 .badge-observado { background: var(--warn-dim); color: var(--warn); border: 1px solid rgba(245,166,35,0.3); }
@@ -176,7 +159,6 @@ tbody td:first-child { color: var(--text-primary); font-weight: 600; }
 
 .empty-msg { text-align: center; padding: 40px; color: var(--text-muted); font-size: 0.82rem; letter-spacing: 1px; }
 
-/* Botón guardar */
 .btn-save {
   margin-top: 22px; width: 100%; padding: 13px; border: none; border-radius: var(--radius-sm);
   background: linear-gradient(135deg, var(--accent), #00b892);
@@ -197,19 +179,12 @@ tbody td:first-child { color: var(--text-primary); font-weight: 600; }
 .toast.show { transform: translateX(-50%) translateY(0); }
 
 /* ===================== LOGIN SCREEN ===================== */
-#screen-login { background: var(--bg-deep); }
+#screen-login, #screen-operator-login { background: var(--bg-deep); }
 .login-box {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 52px 44px 44px;
-  width: 100%; max-width: 400px;
-  position: relative; overflow: hidden;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 52px 44px 44px; width: 100%; max-width: 400px; position: relative; overflow: hidden;
 }
-.login-box::after {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent);
-}
+.login-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
 .login-box .lock-icon { text-align: center; font-size: 2rem; margin-bottom: 8px; }
 .login-box h2 { text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 3px; color: var(--accent); margin-bottom: 4px; }
 .login-box .login-sub { text-align: center; color: var(--text-muted); font-size: 0.75rem; letter-spacing: 1px; margin-bottom: 32px; }
@@ -234,24 +209,12 @@ tbody td:first-child { color: var(--text-primary); font-weight: 600; }
 #screen-consulta { padding-top: 80px; align-items: stretch; justify-content: flex-start; }
 .consulta-wrap { width: 100%; max-width: 800px; padding: 40px 24px 60px; margin: 0 auto; }
 
-.search-box {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 24px; margin-bottom: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-}
-.search-box .search-label { 
-  display: block;
-  font-size: 0.85rem; 
-  font-weight: 700; 
-  letter-spacing: 1.5px; 
-  text-transform: uppercase; 
-  color: #e2e8f0; 
-  margin-bottom: 12px; 
-}
+.search-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.search-box .search-label { display: block; font-size: 0.85rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #e2e8f0; margin-bottom: 12px; }
 .search-row { display: flex; gap: 12px; flex-wrap: wrap; }
 .search-row select, .search-row input {
   background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm);
-  color: #ffffff; font-family: inherit; font-size: 0.95rem; padding: 12px 16px;
-  outline: none; transition: border-color .25s, box-shadow .25s;
+  color: #ffffff; font-family: inherit; font-size: 0.95rem; padding: 12px 16px; outline: none; transition: border-color .25s;
 }
 .search-row select { width: 180px; flex-shrink: 0; cursor: pointer; }
 .search-row select option { background: var(--bg-card); }
@@ -267,70 +230,27 @@ tbody td:first-child { color: var(--text-primary); font-weight: 600; }
 
 /* Result card */
 .result-area { min-height: 140px; }
-.result-card {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 28px; display: none; position: relative; overflow: hidden;
-}
+.result-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; display: none; position: relative; overflow: hidden; }
 .result-card.show { display: block; animation: fadeIn .3s ease; }
 @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 
 .result-card .rc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-.result-card .rc-title { 
-  font-size: 1.4rem; 
-  font-weight: 700; 
-  color: #ffffff; 
-  letter-spacing: 0.5px; 
-}
-.result-card .rc-sub { 
-  color: #94a3b8; 
-  font-size: 0.85rem; 
-  font-weight: 600;
-  letter-spacing: 1px; 
-  margin-top: 4px; 
-  text-transform: uppercase;
-}
+.result-card .rc-title { font-size: 1.4rem; font-weight: 700; color: #ffffff; letter-spacing: 0.5px; }
+.result-card .rc-sub { color: #94a3b8; font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; margin-top: 4px; text-transform: uppercase; }
 .result-card .rc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
-.result-card .rc-field { 
-  background: rgba(15, 20, 32, 0.85); 
-  border-radius: var(--radius-sm); 
-  padding: 14px 16px;
-  border: 1px solid rgba(139,149,168,0.15);
-  display: flex;
-  flex-direction: column;
-}
-.result-card .rc-field label { 
-  display: block; 
-  font-size: 0.78rem; 
-  font-weight: 700;
-  letter-spacing: 1.5px; 
-  text-transform: uppercase; 
-  color: #a5b4fc; 
-  margin-bottom: 4px; 
-}
-.result-card .rc-field .val { 
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 1.05rem; 
-  color: #ffffff; 
-  font-weight: 600;
-}
+.result-card .rc-field { background: rgba(15, 20, 32, 0.85); border-radius: var(--radius-sm); padding: 14px 16px; border: 1px solid rgba(139,149,168,0.15); display: flex; flex-direction: column; }
+.result-card .rc-field label { display: block; font-size: 0.78rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #a5b4fc; margin-bottom: 4px; }
+.result-card .rc-field .val { font-family: 'Share Tech Mono', monospace; font-size: 1.05rem; color: #ffffff; font-weight: 600; }
 .result-card .rc-field.full { grid-column: 1 / -1; }
 
-/* Not found */
-.not-found {
-  text-align: center; padding: 40px 20px; display: none;
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
-}
+.not-found { text-align: center; padding: 40px 20px; display: none; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); }
 .not-found.show { display: block; animation: fadeIn .3s ease; }
 .not-found .nf-icon { font-size: 2.6rem; margin-bottom: 12px; }
 .not-found h3 { color: var(--danger); font-size: 1rem; letter-spacing: 1px; margin-bottom: 6px; }
 .not-found p { color: var(--text-secondary); font-size: 0.85rem; }
 
-/* Stats bar */
 .stats-bar { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
-.stat-pill {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
-  padding: 12px 16px; display: flex; align-items: center; gap: 12px; flex: 1; min-width: 140px;
-}
+.stat-pill { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px; display: flex; align-items: center; gap: 12px; flex: 1; min-width: 140px; }
 .stat-pill .sp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .stat-pill .sp-dot.green { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
 .stat-pill .sp-dot.red { background: var(--danger); box-shadow: 0 0 8px rgba(255,78,106,0.4); }
@@ -339,24 +259,14 @@ tbody td:first-child { color: var(--text-primary); font-weight: 600; }
 .stat-pill .sp-num { font-family: 'Share Tech Mono', monospace; font-size: 1.3rem; font-weight: 700; color: #ffffff; }
 .stat-pill .sp-label { font-size: 0.78rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #c5d1e5; }
 
-/* Logout btn */
-.btn-logout {
-  background: none; border: 1px solid var(--border); color: var(--text-secondary);
-  padding: 7px 16px; border-radius: var(--radius-sm); cursor: pointer;
-  font-family: inherit; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; transition: all .25s;
-}
+.btn-logout { background: none; border: 1px solid var(--border); color: var(--text-secondary); padding: 7px 16px; border-radius: var(--radius-sm); cursor: pointer; font-family: inherit; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; transition: all .25s; }
 .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
 
-/* Spinner */
 .spinner { display:none; text-align:center; padding: 40px; }
 .spinner.show { display:block; }
-.spinner::after {
-  content:''; display:inline-block; width:28px; height:28px; border:3px solid var(--border);
-  border-top-color: var(--accent); border-radius:50%; animation: spin .6s linear infinite;
-}
+.spinner::after { content:''; display:inline-block; width:28px; height:28px; border:3px solid var(--border); border-top-color: var(--accent); border-radius:50%; animation: spin .6s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Responsive */
 @media (max-width: 600px) {
   .role-cards { flex-direction: column; align-items: center; }
   .role-card { width: 100%; max-width: 320px; }
@@ -455,9 +365,6 @@ tbody td:first-child { color: var(--text-primary); font-weight: 600; }
       <button class="nav-btn" onclick="clearAllData()" style="color: var(--danger); border-color: var(--danger); font-size: 0.75rem; padding: 8px 20px;">
         🗑️ Vaciar todos los datos del sistema
       </button>
-      <p style="color: var(--text-muted); font-size: 0.7rem; margin-top: 8px; line-height: 1.4;">
-        Esto eliminará todos los registros permanentemente.<br>Úsalo antes de cargar un nuevo Excel mensual.
-      </p>
     </div>
   </div>
 </div>
@@ -587,47 +494,41 @@ const firebaseConfig = {
   appId: "1:628238254649:web:1a5dc65792b5f4e3dbc3e8"
 };
 
-// Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const operadoresRef = database.ref('operadores');
 
-console.log('🔥 Firebase inicializado correctamente');
+let operatorData = [];
+let systemData   = [];
 
-// ===================== STATE =====================
-let operatorData = [];   // datos cargados desde Excel
-let systemData   = [];   // datos guardados en el sistema
-
-// Credenciales (demo)
 const USERS_VERIFICADOR = { asd: 'asd123', verificador: 'verif2024' };
 const USERS_OPERADOR    = { robert: 'rob123llanos', minero: 'minero2024' };
 
-// ===================== FIREBASE DATABASE FUNCTIONS =====================
+// ===================== FIREBASE SYNC =====================
+function parseFirebaseItem(op) {
+  let fTexto = op.fechaTexto || (typeof op.fecha === 'string' ? op.fecha : '');
+  
+  return {
+    ...op,
+    fecha: (op.fecha && !String(op.fecha).toUpperCase().includes('REVOCADO')) ? parseLocalDate(op.fecha) : null,
+    fechaTexto: String(fTexto).trim().toUpperCase()
+  };
+}
+
 function loadFromFirebase() {
   operadoresRef.once('value')
     .then((snapshot) => {
       const data = snapshot.val();
       if (data) {
-        let rawData = Object.values(data).map(op => ({
-          ...op,
-          fecha: op.fecha ? parseLocalDate(op.fecha) : null,
-          fechaTexto: op.fechaTexto || (typeof op.fecha === 'string' && op.fecha.toUpperCase().includes('REVOCADO') ? 'REVOCADO' : null)
-        }));
-        
+        let rawData = Object.values(data).map(parseFirebaseItem);
         systemData = filterDuplicates(rawData);
-        
-        console.log('✅ Datos cargados desde Firebase:', rawData.length, 'registros totales,', systemData.length, 'únicos');
         updateStats();
       } else {
-        console.log('ℹ️ No hay datos en Firebase todavía');
         systemData = [];
         updateStats();
       }
     })
-    .catch((error) => {
-      console.error('❌ Error cargando datos de Firebase:', error);
-      showToast('⚠️ Error al cargar datos de la nube');
-    });
+    .catch((error) => console.error('Error cargando Firebase:', error));
 }
 
 function saveToFirebase() {
@@ -638,40 +539,23 @@ function saveToFirebase() {
     systemData.forEach((op, index) => {
       const id = 'op_' + Date.now() + '_' + index;
       dataToSave[id] = {
-        nombre: op.nombre,
-        nit: op.nit,
-        nim: op.nim,
-        fecha: op.fecha ? op.fecha.toISOString() : null,
-        fechaTexto: op.fechaTexto || null,
+        nombre: op.nombre || '',
+        nit: op.nit || '',
+        nim: op.nim || '',
+        fecha: op.fecha ? op.fecha.toISOString() : '',
+        fechaTexto: op.fechaTexto || '',
         timestamp: Date.now()
       };
     });
     
     operadoresRef.set(dataToSave)
-      .then(() => {
-        console.log('✅ Datos guardados en Firebase:', systemData.length, 'registros');
-        resolve(true);
-      })
-      .catch((error) => {
-        console.error('❌ Error guardando en Firebase:', error);
-        showToast('⚠️ Error al guardar en la nube');
-        reject(error);
-      });
+      .then(() => resolve(true))
+      .catch((error) => reject(error));
   });
 }
 
 function clearFirebase() {
-  return new Promise((resolve, reject) => {
-    operadoresRef.remove()
-      .then(() => {
-        console.log('🗑️ Datos eliminados de Firebase');
-        resolve(true);
-      })
-      .catch((error) => {
-        console.error('❌ Error eliminando datos de Firebase:', error);
-        reject(error);
-      });
-  });
+  return operadoresRef.remove();
 }
 
 loadFromFirebase();
@@ -679,14 +563,8 @@ loadFromFirebase();
 operadoresRef.on('value', (snapshot) => {
   const data = snapshot.val();
   if (data) {
-    const newData = Object.values(data).map(op => ({
-      ...op,
-      fecha: op.fecha ? parseLocalDate(op.fecha) : null,
-      fechaTexto: op.fechaTexto || (typeof op.fecha === 'string' && op.fecha.toUpperCase().includes('REVOCADO') ? 'REVOCADO' : null)
-    }));
-    
+    const newData = Object.values(data).map(parseFirebaseItem);
     systemData = filterDuplicates(newData);
-    console.log('🔄 Datos actualizados en tiempo real:', systemData.length, 'registros');
     updateStats();
   } else {
     systemData = [];
@@ -694,21 +572,14 @@ operadoresRef.on('value', (snapshot) => {
   }
 });
 
-// ===================== NAVIGATION =====================
+// ===================== NAVIGATION & TOAST =====================
 function goTo(screen) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const map = { 
-    home: 'screen-home', 
-    'operator-login': 'screen-operator-login',
-    operator: 'screen-operator', 
-    login: 'screen-login', 
-    consulta: 'screen-consulta' 
-  };
+  const map = { home: 'screen-home', 'operator-login': 'screen-operator-login', operator: 'screen-operator', login: 'screen-login', consulta: 'screen-consulta' };
   document.getElementById(map[screen]).classList.add('active');
   if (screen === 'consulta') updateStats();
 }
 
-// ===================== TOAST =====================
 function showToast(msg, duration = 2800) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -716,10 +587,10 @@ function showToast(msg, duration = 2800) {
   setTimeout(() => t.classList.remove('show'), duration);
 }
 
-// ===================== HELPER PARSERS =====================
+// ===================== PARSERS =====================
 function parseLocalDate(isoStr) {
-  if (!isoStr) return null;
-  if (typeof isoStr === 'string' && isoStr.toUpperCase().includes('REVOCADO')) return null;
+  if (!isoStr || typeof isoStr !== 'string') return null;
+  if (isoStr.toUpperCase().includes('REVOCADO')) return null;
   const part = isoStr.substring(0, 10);
   const [y, m, d] = part.split('-').map(Number);
   if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
@@ -743,7 +614,6 @@ async function parseXLSX(arrayBuffer) {
   }
   const sheetKey = Object.keys(zip).find(k => k.match(/xl\/worksheets\/sheet1\.xml/i));
   if (!sheetKey) throw new Error('No se encontró sheet1.xml en el archivo');
-
   return parseSheet(zip[sheetKey], sharedStrings);
 }
 
@@ -792,7 +662,6 @@ async function unzipBuffer(buffer) {
     if (name.endsWith('.xml') || name.endsWith('.rels')) {
       files[name] = new TextDecoder().decode(content);
     }
-
     offset = dataStart + compSize;
   }
   return files;
@@ -807,9 +676,7 @@ function parseSharedStrings(xml) {
     const tRegex = /<t[^>]*>([\s\S]*?)<\/t>/g;
     let tMatch;
     let text = '';
-    while ((tMatch = tRegex.exec(inner)) !== null) {
-      text += tMatch[1];
-    }
+    while ((tMatch = tRegex.exec(inner)) !== null) { text += tMatch[1]; }
     text = text.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'");
     strings.push(text);
   }
@@ -830,11 +697,9 @@ function parseSheet(xml, sharedStrings) {
     while ((cellMatch = cellRegex.exec(rowXML)) !== null) {
       const attrs = cellMatch[1];
       const body  = cellMatch[2] || '';
-
       const typeM = attrs.match(/t="([^"]+)"/);
       const type  = typeM ? typeM[1] : 'n';
-
-      const valM = body.match(/<v>([\s\S]*?)<\/v>/);
+      const valM  = body.match(/<v>([\s\S]*?)<\/v>/);
       const rawVal = valM ? valM[1] : '';
 
       const refM = attrs.match(/r="([^"]+)"/);
@@ -852,14 +717,13 @@ function parseSheet(xml, sharedStrings) {
         if (!isNaN(num) && num > 40000 && num < 60000) {
           value = excelDateToJS(num);
         } else {
-          value = num;
+          value = rawVal;
         }
       }
 
       while (cells.length < colIdx) cells.push('');
       cells[colIdx] = value;
     }
-
     if (cells.length > 0) rows.push(cells);
   }
   return rows;
@@ -884,15 +748,6 @@ fileInput.addEventListener('change', e => { handleFile(e.target.files[0]); fileI
 
 async function handleFile(file) {
   if (!file) return;
-  if (!['.xlsx','.xls'].some(ext => file.name.toLowerCase().endsWith(ext))) {
-    showToast('⚠️ Solo se permiten archivos Excel (.xlsx / .xls)');
-    return;
-  }
-  if (file.name.toLowerCase().endsWith('.xls') && !file.name.toLowerCase().endsWith('.xlsx')) {
-    showToast('⚠️ Solo se soporta formato .xlsx. Guarde en formato Excel 2007+');
-    return;
-  }
-
   showToast('⏳ Procesando archivo...');
 
   try {
@@ -903,21 +758,11 @@ async function handleFile(file) {
 
     const headers = raw[0].map(h => String(h).toLowerCase().trim());
     const idx = {
-      nombre: headers.findIndex(h => h.includes('nombre') || h.includes('razón') || h.includes('razon') || h.includes('razon social')),
+      nombre: headers.findIndex(h => h.includes('nombre') || h.includes('razón') || h.includes('razon')),
       nit:    headers.findIndex(h => h.includes('nit')),
       nim:    headers.findIndex(h => h.includes('nim')),
       fecha:  headers.findIndex(h => h.includes('fecha') || h.includes('vencimiento'))
     };
-
-    const missing = [];
-    if (idx.nombre === -1) missing.push('Nombre');
-    if (idx.nit === -1)    missing.push('NIT');
-    if (idx.nim === -1)    missing.push('NIM');
-    if (idx.fecha === -1)  missing.push('Fecha');
-    if (missing.length > 0) {
-      showToast('⚠️ No se encontraron columnas: ' + missing.join(', '));
-      return;
-    }
 
     operatorData = [];
     for (let i = 1; i < raw.length; i++) {
@@ -925,23 +770,18 @@ async function handleFile(file) {
       if (!row || row.every(c => c === '' || c == null)) continue;
 
       let fecha = null;
-      let fechaTexto = null;
+      let fechaTexto = '';
       const fechaRaw = row[idx.fecha];
+      const strVal = String(fechaRaw || '').trim().toUpperCase();
 
-      if (typeof fechaRaw === 'string') {
-        const txtUpper = fechaRaw.trim().toUpperCase();
-        if (txtUpper.includes('REVOCADO')) {
-          fechaTexto = 'REVOCADO';
-        } else {
-          const parsed = new Date(fechaRaw);
-          if (!isNaN(parsed.getTime())) {
-            fecha = parsed;
-          } else {
-            fechaTexto = fechaRaw.trim();
-          }
-        }
+      if (strVal.includes('REVOCADO')) {
+        fechaTexto = 'REVOCADO';
       } else if (fechaRaw instanceof Date) {
         fecha = fechaRaw;
+      } else if (typeof fechaRaw === 'string') {
+        const parsed = new Date(fechaRaw);
+        if (!isNaN(parsed.getTime())) fecha = parsed;
+        else fechaTexto = strVal;
       }
 
       operatorData.push({
@@ -956,24 +796,23 @@ async function handleFile(file) {
     showToast(`✅ ${operatorData.length} registros leídos correctamente`);
 
   } catch (err) {
-    console.error('Error parsing xlsx:', err);
-    showToast('❌ Error al procesar el archivo. Verifique que sea un .xlsx válido.');
+    console.error(err);
+    showToast('❌ Error al procesar el archivo Excel.');
   }
 }
 
-// ===================== DETECT STATE (CORREGIDO) =====================
+// ===================== STATE ENGINE =====================
 function getState(record) {
   if (!record) return 'observado';
 
-  // Verificación estricta de "REVOCADO"
-  if (record.fechaTexto && String(record.fechaTexto).toUpperCase().includes('REVOCADO')) {
-    return 'revocado';
-  }
-  if (typeof record.fecha === 'string' && record.fecha.toUpperCase().includes('REVOCADO')) {
+  // Evaluador estricto de REVOCADO
+  const txt1 = String(record.fechaTexto || '').toUpperCase();
+  const txt2 = String(record.fecha || '').toUpperCase();
+
+  if (txt1.includes('REVOCADO') || txt2.includes('REVOCADO')) {
     return 'revocado';
   }
 
-  // Si no hay fecha válida
   if (!record.fecha || isNaN(new Date(record.fecha).getTime())) {
     return 'observado';
   }
@@ -992,7 +831,7 @@ function formatDate(d) {
   return new Date(d).toLocaleDateString('es-CO', { day:'2-digit', month:'long', year:'numeric' });
 }
 
-// ===================== RENDER TABLE =====================
+// ===================== RENDER & SAVE =====================
 function renderTable() {
   const tbody = document.getElementById('tableBody');
   document.getElementById('rowCount').textContent = operatorData.length + ' registros';
@@ -1021,7 +860,6 @@ function renderTable() {
   document.getElementById('btnSave').classList.add('visible');
 }
 
-// ===================== FILTER DUPLICATES =====================
 function filterDuplicates(data) {
   const uniqueMap = new Map();
 
@@ -1030,14 +868,14 @@ function filterDuplicates(data) {
 
     if (uniqueMap.has(key)) {
       const existing = uniqueMap.get(key);
-      const recordIsRev = record.fechaTexto && String(record.fechaTexto).toUpperCase().includes('REVOCADO');
-      const existingIsRev = existing.fechaTexto && String(existing.fechaTexto).toUpperCase().includes('REVOCADO');
+      const isRecordRev = getState(record) === 'revocado';
+      const isExistingRev = getState(existing) === 'revocado';
 
-      if (recordIsRev) {
+      if (isRecordRev) {
         uniqueMap.set(key, record);
         return;
       }
-      if (existingIsRev) {
+      if (isExistingRev) {
         return;
       }
 
@@ -1055,7 +893,6 @@ function filterDuplicates(data) {
   return Array.from(uniqueMap.values());
 }
 
-// ===================== SAVE DATA =====================
 async function saveData() {
   if (operatorData.length === 0) return;
   systemData = filterDuplicates([...operatorData]);
@@ -1064,83 +901,50 @@ async function saveData() {
     await saveToFirebase();
     showToast('💾 Datos guardados exitosamente en la nube');
   } catch (error) {
-    showToast('❌ Error al guardar. Intente nuevamente.');
+    showToast('❌ Error al guardar en la nube.');
   }
 }
 
-// ===================== CLEAR ALL DATA =====================
 async function clearAllData() {
-  const currentCount = systemData.length;
-  if (currentCount === 0) {
-    showToast('ℹ️ No hay datos para eliminar');
-    return;
-  }
-
-  if (!confirm(`⚠️ ¿Está seguro de que desea VACIAR TODOS los datos del sistema?\n\n📊 Se eliminarán ${currentCount} registros permanentemente DE LA NUBE.`)) return;
-
-  showToast('⏳ Eliminando datos de la nube...');
-
+  if (!confirm('⚠️ ¿Está seguro de eliminar TODOS los datos del sistema?')) return;
   try {
     await clearFirebase();
     systemData = [];
     operatorData = [];
     renderTable();
     updateStats();
-    showToast('🗑️ Todos los datos han sido eliminados');
-  } catch (error) {
-    showToast('❌ Error al eliminar datos.');
+    showToast('🗑️ Datos eliminados');
+  } catch (e) {
+    showToast('❌ Error al vaciar');
   }
 }
 
-// ===================== LOGIN OPERADOR =====================
+// ===================== LOGINS =====================
 function doOperatorLogin() {
   const user = document.getElementById('operatorUser').value.trim();
   const pass = document.getElementById('operatorPass').value.trim();
   const err  = document.getElementById('operatorError');
-
-  if (!user || !pass) { err.textContent = 'Por favor complete ambos campos.'; return; }
   if (USERS_OPERADOR[user] === pass) {
     err.textContent = '';
-    document.getElementById('operatorUser').value = '';
-    document.getElementById('operatorPass').value = '';
     goTo('operator');
-  } else {
-    err.textContent = '❌ Usuario o contraseña incorrectos.';
-    document.getElementById('operatorPass').value = '';
-    document.getElementById('operatorPass').focus();
-  }
+  } else err.textContent = '❌ Credenciales incorrectas.';
 }
 
-function doOperatorLogout() {
-  operatorData = [];
-  renderTable();
-  goTo('home');
-}
+function doOperatorLogout() { operatorData = []; renderTable(); goTo('home'); }
 
-// ===================== LOGIN VERIFICADOR =====================
 function doLogin() {
   const user = document.getElementById('loginUser').value.trim();
   const pass = document.getElementById('loginPass').value.trim();
   const err  = document.getElementById('loginError');
-
-  if (!user || !pass) { err.textContent = 'Por favor complete ambos campos.'; return; }
   if (USERS_VERIFICADOR[user] === pass) {
     err.textContent = '';
-    document.getElementById('loginUser').value = '';
-    document.getElementById('loginPass').value = '';
     goTo('consulta');
-  } else {
-    err.textContent = '❌ Usuario o contraseña incorrectos.';
-    document.getElementById('loginPass').value = '';
-    document.getElementById('loginPass').focus();
-  }
+  } else err.textContent = '❌ Credenciales incorrectas.';
 }
 
-function doLogout() {
-  goTo('home');
-}
+function doLogout() { goTo('home'); }
 
-// ===================== SEARCH =====================
+// ===================== SEARCH & STATS =====================
 function doSearch() {
   const type  = document.getElementById('searchType').value;
   const query = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -1148,10 +952,7 @@ function doSearch() {
   const resultCard = document.getElementById('resultCard');
   const notFound   = document.getElementById('notFound');
 
-  if (!query) { 
-    showToast('⚠️ Ingrese un valor para buscar'); 
-    return; 
-  }
+  if (!query) { showToast('⚠️ Ingrese un valor para buscar'); return; }
 
   resultCard.classList.remove('show');
   notFound.classList.remove('show');
@@ -1160,53 +961,34 @@ function doSearch() {
   setTimeout(() => {
     spinner.classList.remove('show');
 
-    const allMatches = systemData.filter(op => {
-      const fieldValue = op[type];
-      if (!fieldValue) return false;
-      return String(fieldValue).toLowerCase().includes(query);
+    const matches = systemData.filter(op => {
+      const val = op[type];
+      return val && String(val).toLowerCase().includes(query);
     });
 
-    if (allMatches.length > 0) {
-      const revokedMatches = allMatches.filter(op => getState(op) === 'revocado');
-      const nonRevokedMatches = allMatches.filter(op => getState(op) !== 'revocado');
-
-      let found;
-      if (revokedMatches.length > 0) {
-        found = revokedMatches[0];
-      } else if (nonRevokedMatches.length > 0) {
-        found = nonRevokedMatches.reduce((latest, current) => {
-          const latestDate = latest.fecha ? new Date(latest.fecha).getTime() : 0;
-          const currentDate = current.fecha ? new Date(current.fecha).getTime() : 0;
-          return currentDate > latestDate ? current : latest;
-        }, nonRevokedMatches[0]);
-      } else {
-        found = allMatches[0];
-      }
-
+    if (matches.length > 0) {
+      // Prioridad a REVOCADO si existe en las coincidencias
+      const rev = matches.find(m => getState(m) === 'revocado');
+      const found = rev || matches[0];
       const state = getState(found);
+
       document.getElementById('rcNombre').textContent = found.nombre || '—';
       document.getElementById('rcNit').textContent     = found.nit || '—';
       document.getElementById('rcNim').textContent     = found.nim || '—';
 
-      let fechaDisplay = (state === 'revocado') ? 'REVOCADO' : formatDate(found.fecha);
-      document.getElementById('rcFecha').textContent = fechaDisplay;
+      document.getElementById('rcFecha').textContent = (state === 'revocado') ? 'REVOCADO' : formatDate(found.fecha);
 
       const badge = document.getElementById('rcBadge');
       badge.textContent = state;
       badge.className = 'badge badge-' + state;
 
       resultCard.classList.add('show');
-      
-      if (allMatches.length > 1) {
-        showToast(`ℹ️ Se encontraron ${allMatches.length} registros. Mostrando resultado.`, 3000);
-      }
     } else {
       notFound.classList.add('show');
     }
-  }, 400);
+  }, 300);
 }
 
-// ===================== UPDATE STATS =====================
 function updateStats() {
   let v=0, ve=0, o=0, r=0;
   systemData.forEach(op => {
