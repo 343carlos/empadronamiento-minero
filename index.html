@@ -25,9 +25,9 @@
   --warn-dim:       rgba(245,166,35,0.15);
   --revoked:        #8b5cf6;
   --revoked-dim:    rgba(139,92,246,0.15);
-  --text-primary:   #ffffff;      /* Blanco puro */
-  --text-secondary: #cbd5e1;     /* Gris claro de alto contraste (antes #8b95a8) */
-  --text-muted:     #94a3b8;     /* Gris medio legible (antes #555e72) */
+  --text-primary:   #ffffff;
+  --text-secondary: #cbd5e1;
+  --text-muted:     #94a3b8;
   --border:         rgba(148, 163, 184, 0.22);
   --radius:         12px;
   --radius-sm:      8px;
@@ -43,7 +43,6 @@ body {
   position: relative;
 }
 
-/* ===================== EFECTO DE BRILLO VERDE ADICIONAL ===================== */
 body::after {
   content: '';
   position: fixed;
@@ -231,7 +230,7 @@ tbody td:first-child { color: var(--text-primary); font-weight: 600; }
 .btn-login:hover { box-shadow: 0 6px 24px var(--accent-glow); }
 .login-error { color: var(--danger); font-size: 0.75rem; text-align: center; margin-top: 14px; min-height: 16px; letter-spacing: 0.5px; }
 
-/* ===================== CONSULTA SCREEN (MEJORADO) ===================== */
+/* ===================== CONSULTA SCREEN ===================== */
 #screen-consulta { padding-top: 80px; align-items: stretch; justify-content: flex-start; }
 .consulta-wrap { width: 100%; max-width: 800px; padding: 40px 24px 60px; margin: 0 auto; }
 
@@ -266,7 +265,7 @@ tbody td:first-child { color: var(--text-primary); font-weight: 600; }
 }
 .btn-search:hover { box-shadow: 0 6px 24px var(--accent-glow); }
 
-/* Result card - LEGIBILIDAD AUMENTADA */
+/* Result card */
 .result-area { min-height: 140px; }
 .result-card {
   background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
@@ -305,7 +304,7 @@ tbody td:first-child { color: var(--text-primary); font-weight: 600; }
   font-weight: 700;
   letter-spacing: 1.5px; 
   text-transform: uppercase; 
-  color: #a5b4fc; /* Tono azul/violeta claro para contraste óptimo */
+  color: #a5b4fc; 
   margin-bottom: 4px; 
 }
 .result-card .rc-field .val { 
@@ -326,7 +325,7 @@ tbody td:first-child { color: var(--text-primary); font-weight: 600; }
 .not-found h3 { color: var(--danger); font-size: 1rem; letter-spacing: 1px; margin-bottom: 6px; }
 .not-found p { color: var(--text-secondary); font-size: 0.85rem; }
 
-/* Stats bar - OPTIMIZADA EN TAMAÑO Y CONTRASTE */
+/* Stats bar */
 .stats-bar { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
 .stat-pill {
   background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
@@ -596,7 +595,7 @@ const operadoresRef = database.ref('operadores');
 console.log('🔥 Firebase inicializado correctamente');
 
 // ===================== STATE =====================
-let operatorData = [];   // datos cargados desde Excel (pendientes)
+let operatorData = [];   // datos cargados desde Excel
 let systemData   = [];   // datos guardados en el sistema
 
 // Credenciales (demo)
@@ -611,20 +610,18 @@ function loadFromFirebase() {
       if (data) {
         let rawData = Object.values(data).map(op => ({
           ...op,
-          fecha: op.fecha ? parseLocalDate(op.fecha) : null
+          fecha: op.fecha ? parseLocalDate(op.fecha) : null,
+          fechaTexto: op.fechaTexto || (typeof op.fecha === 'string' && op.fecha.toUpperCase().includes('REVOCADO') ? 'REVOCADO' : null)
         }));
         
         systemData = filterDuplicates(rawData);
         
         console.log('✅ Datos cargados desde Firebase:', rawData.length, 'registros totales,', systemData.length, 'únicos');
-        
-        const consultaScreen = document.getElementById('screen-consulta');
-        if (consultaScreen && consultaScreen.classList.contains('active')) {
-          updateStats();
-        }
+        updateStats();
       } else {
         console.log('ℹ️ No hay datos en Firebase todavía');
         systemData = [];
+        updateStats();
       }
     })
     .catch((error) => {
@@ -645,6 +642,7 @@ function saveToFirebase() {
         nit: op.nit,
         nim: op.nim,
         fecha: op.fecha ? op.fecha.toISOString() : null,
+        fechaTexto: op.fechaTexto || null,
         timestamp: Date.now()
       };
     });
@@ -683,18 +681,16 @@ operadoresRef.on('value', (snapshot) => {
   if (data) {
     const newData = Object.values(data).map(op => ({
       ...op,
-      fecha: op.fecha ? parseLocalDate(op.fecha) : null
+      fecha: op.fecha ? parseLocalDate(op.fecha) : null,
+      fechaTexto: op.fechaTexto || (typeof op.fecha === 'string' && op.fecha.toUpperCase().includes('REVOCADO') ? 'REVOCADO' : null)
     }));
     
-    if (JSON.stringify(newData) !== JSON.stringify(systemData)) {
-      systemData = newData;
-      console.log('🔄 Datos actualizados en tiempo real:', systemData.length, 'registros');
-      
-      const consultaScreen = document.getElementById('screen-consulta');
-      if (consultaScreen && consultaScreen.classList.contains('active')) {
-        updateStats();
-      }
-    }
+    systemData = filterDuplicates(newData);
+    console.log('🔄 Datos actualizados en tiempo real:', systemData.length, 'registros');
+    updateStats();
+  } else {
+    systemData = [];
+    updateStats();
   }
 });
 
@@ -720,11 +716,13 @@ function showToast(msg, duration = 2800) {
   setTimeout(() => t.classList.remove('show'), duration);
 }
 
-// ===================== XLSX PARSER =====================
+// ===================== HELPER PARSERS =====================
 function parseLocalDate(isoStr) {
   if (!isoStr) return null;
+  if (typeof isoStr === 'string' && isoStr.toUpperCase().includes('REVOCADO')) return null;
   const part = isoStr.substring(0, 10);
   const [y, m, d] = part.split('-').map(Number);
+  if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
   return new Date(y, m - 1, d, 24, 0, 0);
 } 
 
@@ -929,22 +927,21 @@ async function handleFile(file) {
       let fecha = null;
       let fechaTexto = null;
       const fechaRaw = row[idx.fecha];
-      
-      const isRevoked = typeof fechaRaw === 'string' && fechaRaw.trim().toLowerCase() === 'revocado';
-      
-      if (isRevoked) {
-        fecha = null;
-        fechaTexto = 'REVOCADO';
+
+      if (typeof fechaRaw === 'string') {
+        const txtUpper = fechaRaw.trim().toUpperCase();
+        if (txtUpper.includes('REVOCADO')) {
+          fechaTexto = 'REVOCADO';
+        } else {
+          const parsed = new Date(fechaRaw);
+          if (!isNaN(parsed.getTime())) {
+            fecha = parsed;
+          } else {
+            fechaTexto = fechaRaw.trim();
+          }
+        }
       } else if (fechaRaw instanceof Date) {
         fecha = fechaRaw;
-      } else if (typeof fechaRaw === 'string' && fechaRaw.trim()) {
-        const parsed = new Date(fechaRaw);
-        if (!isNaN(parsed.getTime())) {
-          fecha = parsed;
-        } else {
-          fecha = null;
-          fechaTexto = fechaRaw.trim();
-        }
       }
 
       operatorData.push({
@@ -964,28 +961,35 @@ async function handleFile(file) {
   }
 }
 
-// ===================== DETECT STATE =====================
+// ===================== DETECT STATE (CORREGIDO) =====================
 function getState(record) {
-  if (record.fechaTexto && record.fechaTexto.toLowerCase() === 'revocado') {
+  if (!record) return 'observado';
+
+  // Verificación estricta de "REVOCADO"
+  if (record.fechaTexto && String(record.fechaTexto).toUpperCase().includes('REVOCADO')) {
     return 'revocado';
   }
-  
-  if (!record.fecha || isNaN(record.fecha.getTime())) {
+  if (typeof record.fecha === 'string' && record.fecha.toUpperCase().includes('REVOCADO')) {
+    return 'revocado';
+  }
+
+  // Si no hay fecha válida
+  if (!record.fecha || isNaN(new Date(record.fecha).getTime())) {
     return 'observado';
   }
-  
-  const hoy   = new Date(); hoy.setHours(0,0,0,0);
-  const venc  = new Date(record.fecha); venc.setHours(0,0,0,0);
-  const diff  = (venc - hoy) / (1000*60*60*24);
-  
-  if (diff < 0)  return 'vencido';
+
+  const hoy  = new Date(); hoy.setHours(0,0,0,0);
+  const venc = new Date(record.fecha); venc.setHours(0,0,0,0);
+  const diff = (venc - hoy) / (1000*60*60*24);
+
+  if (diff < 0)   return 'vencido';
   if (diff <= 30) return 'observado';
   return 'vigente';
 }
 
 function formatDate(d) {
-  if (!d || isNaN(d.getTime())) return 'Sin fecha';
-  return d.toLocaleDateString('es-CO', { day:'2-digit', month:'long', year:'numeric' });
+  if (!d || isNaN(new Date(d).getTime())) return 'Sin fecha';
+  return new Date(d).toLocaleDateString('es-CO', { day:'2-digit', month:'long', year:'numeric' });
 }
 
 // ===================== RENDER TABLE =====================
@@ -1002,12 +1006,8 @@ function renderTable() {
   let html = '<table><thead><tr><th>Nombre / Razón Social</th><th>NIT</th><th>NIM</th><th>Fecha Vencimiento</th><th>Estado</th></tr></thead><tbody>';
   operatorData.forEach(op => {
     const state = getState(op);
-    let fechaDisplay = '';
-    if (op.fechaTexto && op.fechaTexto.toLowerCase() === 'revocado') {
-      fechaDisplay = 'REVOCADO';
-    } else {
-      fechaDisplay = formatDate(op.fecha);
-    }
+    let fechaDisplay = (state === 'revocado') ? 'REVOCADO' : formatDate(op.fecha);
+
     html += `<tr>
       <td>${op.nombre || '—'}</td>
       <td>${op.nit || '—'}</td>
@@ -1024,25 +1024,26 @@ function renderTable() {
 // ===================== FILTER DUPLICATES =====================
 function filterDuplicates(data) {
   const uniqueMap = new Map();
-  
+
   data.forEach(record => {
     const key = `${(record.nombre || '').trim().toLowerCase()}_${(record.nit || '').trim()}_${(record.nim || '').trim()}`;
-    
+
     if (uniqueMap.has(key)) {
       const existing = uniqueMap.get(key);
-      
-      if (record.fechaTexto && record.fechaTexto.toLowerCase() === 'revocado') {
+      const recordIsRev = record.fechaTexto && String(record.fechaTexto).toUpperCase().includes('REVOCADO');
+      const existingIsRev = existing.fechaTexto && String(existing.fechaTexto).toUpperCase().includes('REVOCADO');
+
+      if (recordIsRev) {
         uniqueMap.set(key, record);
         return;
       }
-      
-      if (existing.fechaTexto && existing.fechaTexto.toLowerCase() === 'revocado') {
+      if (existingIsRev) {
         return;
       }
-      
-      const existingDate = existing.fecha instanceof Date ? existing.fecha : new Date(0);
-      const currentDate = record.fecha instanceof Date ? record.fecha : new Date(0);
-      
+
+      const existingDate = existing.fecha ? new Date(existing.fecha).getTime() : 0;
+      const currentDate = record.fecha ? new Date(record.fecha).getTime() : 0;
+
       if (currentDate > existingDate) {
         uniqueMap.set(key, record);
       }
@@ -1050,21 +1051,18 @@ function filterDuplicates(data) {
       uniqueMap.set(key, record);
     }
   });
-  
+
   return Array.from(uniqueMap.values());
 }
 
 // ===================== SAVE DATA =====================
 async function saveData() {
   if (operatorData.length === 0) return;
-  systemData = [...operatorData];
-  
+  systemData = filterDuplicates([...operatorData]);
+
   try {
     await saveToFirebase();
     showToast('💾 Datos guardados exitosamente en la nube');
-    setTimeout(() => { 
-      showToast('☁️ ' + systemData.length + ' registros disponibles en el sistema'); 
-    }, 3200);
   } catch (error) {
     showToast('❌ Error al guardar. Intente nuevamente.');
   }
@@ -1077,27 +1075,20 @@ async function clearAllData() {
     showToast('ℹ️ No hay datos para eliminar');
     return;
   }
-  
-  const msg1 = '⚠️ ¿Está seguro de que desea VACIAR TODOS los datos del sistema?\n\n' +
-               '📊 Se eliminarán ' + currentCount + ' registros permanentemente DE LA NUBE.\n\n' +
-               '¿Continuar?';
-  if (!confirm(msg1)) return;
-  
-  const msg2 = '⚠️⚠️ ÚLTIMA CONFIRMACIÓN ⚠️⚠️\n\n' +
-               'Esta acción NO se puede deshacer.\n\n' +
-               '¿Confirmar eliminación?';
-  if (!confirm(msg2)) return;
-  
+
+  if (!confirm(`⚠️ ¿Está seguro de que desea VACIAR TODOS los datos del sistema?\n\n📊 Se eliminarán ${currentCount} registros permanentemente DE LA NUBE.`)) return;
+
   showToast('⏳ Eliminando datos de la nube...');
-  
+
   try {
     await clearFirebase();
     systemData = [];
     operatorData = [];
     renderTable();
-    showToast('🗑️ Todos los datos han sido eliminados de la nube');
+    updateStats();
+    showToast('🗑️ Todos los datos han sido eliminados');
   } catch (error) {
-    showToast('❌ Error al eliminar datos. Intente nuevamente.');
+    showToast('❌ Error al eliminar datos.');
   }
 }
 
@@ -1176,18 +1167,16 @@ function doSearch() {
     });
 
     if (allMatches.length > 0) {
-      const revokedMatches = allMatches.filter(op => op.fechaTexto && op.fechaTexto.toLowerCase() === 'revocado');
-      const nonRevokedMatches = allMatches.filter(op => !(op.fechaTexto && op.fechaTexto.toLowerCase() === 'revocado'));
-      
+      const revokedMatches = allMatches.filter(op => getState(op) === 'revocado');
+      const nonRevokedMatches = allMatches.filter(op => getState(op) !== 'revocado');
+
       let found;
       if (revokedMatches.length > 0) {
-        found = revokedMatches.reduce((latest, current) => {
-          return (current.timestamp || 0) > (latest.timestamp || 0) ? current : latest;
-        }, revokedMatches[0]);
+        found = revokedMatches[0];
       } else if (nonRevokedMatches.length > 0) {
         found = nonRevokedMatches.reduce((latest, current) => {
-          const latestDate = latest.fecha instanceof Date ? latest.fecha.getTime() : 0;
-          const currentDate = current.fecha instanceof Date ? current.fecha.getTime() : 0;
+          const latestDate = latest.fecha ? new Date(latest.fecha).getTime() : 0;
+          const currentDate = current.fecha ? new Date(current.fecha).getTime() : 0;
           return currentDate > latestDate ? current : latest;
         }, nonRevokedMatches[0]);
       } else {
@@ -1198,8 +1187,8 @@ function doSearch() {
       document.getElementById('rcNombre').textContent = found.nombre || '—';
       document.getElementById('rcNit').textContent     = found.nit || '—';
       document.getElementById('rcNim').textContent     = found.nim || '—';
-      
-      let fechaDisplay = (found.fechaTexto && found.fechaTexto.toLowerCase() === 'revocado') ? 'REVOCADO' : formatDate(found.fecha);
+
+      let fechaDisplay = (state === 'revocado') ? 'REVOCADO' : formatDate(found.fecha);
       document.getElementById('rcFecha').textContent = fechaDisplay;
 
       const badge = document.getElementById('rcBadge');
@@ -1209,12 +1198,12 @@ function doSearch() {
       resultCard.classList.add('show');
       
       if (allMatches.length > 1) {
-        showToast(`ℹ️ Se encontraron ${allMatches.length} registros. Mostrando el más reciente.`, 3000);
+        showToast(`ℹ️ Se encontraron ${allMatches.length} registros. Mostrando resultado.`, 3000);
       }
     } else {
       notFound.classList.add('show');
     }
-  }, 600);
+  }, 400);
 }
 
 // ===================== UPDATE STATS =====================
@@ -1225,18 +1214,13 @@ function updateStats() {
     if (s==='vigente') v++;
     else if (s==='vencido') ve++;
     else if (s==='revocado') r++;
-    else o++;
+    else if (s==='observado') o++;
   });
-  
-  const statVig = document.getElementById('statVig');
-  const statVen = document.getElementById('statVen');
-  const statObs = document.getElementById('statObs');
-  const statRev = document.getElementById('statRev');
-  
-  if (statVig) statVig.textContent = v;
-  if (statVen) statVen.textContent = ve;
-  if (statObs) statObs.textContent = o;
-  if (statRev) statRev.textContent = r;
+
+  document.getElementById('statVig').textContent = v;
+  document.getElementById('statVen').textContent = ve;
+  document.getElementById('statObs').textContent = o;
+  document.getElementById('statRev').textContent = r;
 }
 </script>
 </body>
